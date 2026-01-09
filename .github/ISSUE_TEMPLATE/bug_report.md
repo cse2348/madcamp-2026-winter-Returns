@@ -1,3 +1,10 @@
+---
+name: "Bug Report"
+about: "앱에서 발생한 문제를 보고하기 위한 템플릿입니다."
+title: "[BUG] "
+labels: ["BUG"]
+assignees: ""
+---
 
 ## 📌 설명
 어떤 작업을 하려는지 간단히 적어주세요.  

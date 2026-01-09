@@ -1,3 +1,10 @@
+---
+name: "Feature Report"
+about: "새로운 기능 개발 요청을 기록합니다"
+title: "[FEATURE] "
+labels: ["FEATURE"]
+assignees: ""
+---
 
 ## 📌 설명
 어떤 기능을 개발하려는지 간단히 적어주세요.
