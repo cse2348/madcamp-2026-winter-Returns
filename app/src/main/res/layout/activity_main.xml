@@ -31,7 +31,7 @@
             android:id="@+id/btn_user"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:background="@drawable/ic_user3"
+            android:background="@drawable/ic_user"
             android:padding="6dp"
             android:src="@drawable/ic_user"
             app:tint="#FFFFFF" />
