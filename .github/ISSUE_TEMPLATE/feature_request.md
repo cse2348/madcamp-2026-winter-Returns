@@ -1,0 +1,20 @@
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+- 설명
+어떤 기능을 개발하려는지 간단히 적어주세요.
+
+- 작업 항목
+[ ]  엔티티/DB 작업
+[ ]  서비스/비즈니스 로직
+[ ]   컨트롤러/엔드포인트
+[ ]   테스트 코드 작성
+
+- 참고 자료
+관련 문서, 링크 등을 적어주세요.
