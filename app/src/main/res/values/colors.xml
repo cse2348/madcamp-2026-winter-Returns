@@ -2,4 +2,15 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primary">#FF1E3A8A</color>
+    <color name="secondary">#FF64748B</color>
+    <color name="background">#FFF8FAFC</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="border">#FFE2E8F0</color>
+    <color name="stored">#FF16A34A</color>
+    <color name="returned">#FF64748B</color>
+    <color name="lost">#FFF59E0B</color>
+    <color name="found">#FF2563EB</color>
+    <color name="text_muted">#FF64748B</color>
+    <color name="text_foreground">#FF0F172A</color>
 </resources>
