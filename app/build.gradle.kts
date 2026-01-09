@@ -32,6 +32,13 @@ android {
 }
 
 dependencies {
+    // 1. Room 관련 설정
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+
+    // Room 테스트를 위한 라이브러리
+    testImplementation("androidx.room:room-testing:$roomVersion")
 
     implementation(libs.appcompat)
     implementation(libs.material)
