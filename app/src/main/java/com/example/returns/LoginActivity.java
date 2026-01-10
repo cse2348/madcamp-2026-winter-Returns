@@ -1,6 +1,8 @@
 package com.example.returns;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -55,12 +57,17 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.btnFinalStart).setOnClickListener(v -> {
             String nickname = etNickname.getText().toString().trim();
 
-            // 여기서도 안전을 위해 8자 체크 (넘었으면 다시 입력창으로)
+            // 여기서도 안전을 위해 8자 체크
             if (nickname.length() > 8) {
                 setStep("register");
                 showError("닉네임은 8자 이하만 가능합니다.");
                 return;
             }
+
+            SharedPreferences pref = getSharedPreferences("UserToken", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("nickName", nickname);
+            editor.apply();
 
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra("userNickname", nickname);
@@ -79,9 +86,8 @@ public class LoginActivity extends AppCompatActivity {
         tvWelcomeName = findViewById(R.id.tvWelcomeName);
     }
 
-    // [핵심 로직] 버튼을 눌렀을 때만 글자 수와 중복을 체크함
+
     private void checkNickname() {
-        // 입력창에 있는 글자를 그대로 가져옴 (제한 없이 다 가져옴)
         String nickname = etNickname.getText().toString().trim();
 
         // 1. 비어있는지 체크
@@ -92,26 +98,24 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // 2. 글자 수 체크 (8자 넘었는지 확인)
-        // 입력창에서는 다 보이지만, 8자가 넘으면 여기서 걸려서 다음으로 못 넘어감
         if (nickname.length() > 8) {
             showError("닉네임은 8자 이하로 입력해주세요. (현재 " + nickname.length() + "자)");
-            shakeView(etNickname); // "안돼" 애니메이션
-            return; // 함수 종료 -> 로딩 화면(setStep("checking"))으로 안 넘어감
+            shakeView(etNickname);
+            return;
         }
 
-        // 3. 글자 수가 통과되면 로딩(중복 확인 중...) 화면으로 전환
+        // 3. 글자 수가 통과되면 로딩 화면으로 전환
         setStep("checking");
         tvError.setVisibility(View.GONE);
 
-        // 실제 중복 체크 시뮬레이션 (800ms 뒤 결과 출력)
+        // 실제 중복 체크 시뮬레이션
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // 4. 리스트에 이름이 있는지 체크 (중복 체크)
             if (EXISTING_NICKNAMES.contains(nickname.toLowerCase())) {
                 setStep("register");
                 showError("이미 존재하는 닉네임입니다.");
                 shakeView(etNickname);
             } else {
-                // 모두 통과 시 성공 화면으로
+                // 통과 시 성공 화면으로
                 tvWelcomeName.setText(nickname + "님");
                 setStep("success");
             }
