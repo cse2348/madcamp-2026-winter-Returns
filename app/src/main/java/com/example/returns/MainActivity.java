@@ -32,7 +32,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private String userNickname;
-    private RelativeLayout rootLayout; // XML이 RelativeLayout이므로 타입을 변경합니다.
+    private RelativeLayout rootLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // XML의 id="@+id/main"과 연결
         rootLayout = findViewById(R.id.main);
 
         // 1. 시스템 바 패딩 설정
@@ -88,9 +87,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 댓글 알림 팝업 생성 (스크린샷 디자인 반영)
-     */
+
     public void handleCommentAdded(int itemId, String itemTitle, String commenterName) {
         LayoutInflater inflater = getLayoutInflater();
         View notiView = inflater.inflate(R.layout.layout_notification_popup, rootLayout, false);
@@ -107,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        params.addRule(RelativeLayout.ALIGN_PARENT_TOP); // 상단에 배치
-        params.topMargin = 50; // 상단 여백
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        params.topMargin = 50;
         params.leftMargin = 30;
         params.rightMargin = 30;
         notiView.setLayoutParams(params);
