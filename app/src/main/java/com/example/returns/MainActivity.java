@@ -114,12 +114,15 @@ public class MainActivity extends AppCompatActivity {
                 View itemView = getLayoutInflater().inflate(R.layout.item_notification, null);
 
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
+                String printingtitle;
+                if(title.length()<20)printingtitle=title;
+                else printingtitle=title.substring(0,17)+"...";
                 // 이미지와 동일한 문구 구성
-                tvMessage.setText("누군가가\n\"" + title + "\" 게시물에 댓글을 남겼습니다.");
+                tvMessage.setText("누군가가\n\"" + printingtitle + "\" 게시물에 댓글을 남겼습니다.");
 
                 // 확인 버튼 클릭 이벤트
                 itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
-                    Toast.makeText(this, title + " 확인 완료", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, title + " 확인 완료", Toast.LENGTH_SHORT).show();
                 });
 
                 layoutNotifications.addView(itemView); // 실제 레이아웃에 추가
