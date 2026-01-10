@@ -124,11 +124,6 @@
                     <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_phone" app:tint="#666666" />
                     <TextView android:id="@+id/tvPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="010-1111-2222" android:textSize="15sp" android:textColor="#333333"/>
                 </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_user" app:tint="#666666" />
-                    <TextView android:id="@+id/tvOwnerName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="이학생" android:textSize="15sp" android:textColor="#333333"/>
-                </LinearLayout>
             </LinearLayout>
 
             <TextView
