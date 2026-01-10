@@ -18,7 +18,6 @@
             android:gravity="center"
             android:orientation="vertical"
             android:layout_marginBottom="20dp">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -26,7 +25,6 @@
                 android:textColor="#1E293B"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,17 +34,19 @@
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <TextView android:text="제목" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="제목" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_title"
             android:hint="예: 검정 지갑 습득"
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/bg_rounded_input"
             android:padding="10dp"
             android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="물건 이미지" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="물건 이미지" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <LinearLayout
             android:id="@+id/btn_image_add"
             android:layout_width="80dp"
@@ -58,32 +58,32 @@
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:id="@+id/iv_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_camera"
                 app:tint="#64748B" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="사진 추가"
-                android:textSize="10sp"
-                android:textColor="#64748B" />
         </LinearLayout>
 
-        <TextView android:text="습득한 곳" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="습득한 곳" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_location"
             android:hint="예: 도서관 1층 입구"
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/bg_rounded_input"
             android:padding="10dp"
             android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="습득 시간" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="습득 시간" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_time"
             android:hint="날짜와 시간을 선택하세요"
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/bg_rounded_input"
@@ -93,7 +93,7 @@
             android:drawableEnd="@drawable/ic_calendarplus"
             android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="종류" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="종류" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_category"
             android:layout_width="match_parent"
@@ -111,10 +111,12 @@
             <com.google.android.material.chip.Chip android:id="@+id/cat_etc" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="기타"/>
         </com.google.android.material.chip.ChipGroup>
 
-        <TextView android:text="상세 특징" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="상세 특징" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_features"
             android:hint="예: 빨간색 스티커가 붙어있음"
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="80dp"
@@ -123,20 +125,24 @@
             android:padding="10dp"
             android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="현재 보관 장소" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="현재 보관 장소" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_storage"
             android:hint="예: 본관 경비실"
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/bg_rounded_input"
             android:padding="10dp"
             android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="찾는 방법" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+        <TextView android:text="찾는 방법" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_how_to_find"
             android:hint="예: 신분증 지참 후 방문 수령"
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="80dp"
