@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 알림을 담을 부모 레이아웃과 빈 상태 텍스트뷰 가져오기
         LinearLayout layoutNotification = modalView.findViewById(R.id.layout_user_modal);
-        TextView tvNoNotification = modalView.findViewById(R.id.item_no_notification);
+        LinearLayout tvNoNotification = modalView.findViewById(R.id.layout_no_notification);
 
         // 2. 알림 리스트 처리 메커니즘
         if (dummyNotification == null || dummyNotification.isEmpty()) {
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
             // 리스트를 돌면서 동적으로 항목 추가
             for (String title : dummyNotification) {
-                View itemView = getLayoutInflater().inflate(R.id.layout_item_notification, null);
+                View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, null);
 
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
                 String printingtitle;
