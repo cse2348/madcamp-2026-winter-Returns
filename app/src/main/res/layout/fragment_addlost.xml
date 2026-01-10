@@ -70,7 +70,7 @@
         </LinearLayout>
 
         <TextView
-            android:text="찾은곳"
+            android:text="분실한 곳"
             style="@style/LabelStyle" />
         <EditText
             android:id="@+id/et_location"
@@ -114,21 +114,10 @@
             android:paddingTop="12dp"
             style="@style/InputStyle" />
 
-        <TextView android:text="현재 보관 장소" style="@style/LabelStyle" />
+        <TextView android:text="연락처" style="@style/LabelStyle" />
         <EditText
             android:id="@+id/et_storage"
-            android:hint="예: 경비실"
-            style="@style/InputStyle" />
-
-        <TextView android:text="찾는 방법" style="@style/LabelStyle" />
-        <EditText
-            android:id="@+id/et_how_to_find"
-            android:hint="예: 경비실에서 신분증 확인 후 수령"
-            android:layout_height="wrap_content"
-            android:minLines="2"
-            android:gravity="top"
-            android:minHeight="80dp"
-            android:paddingTop="12dp"
+            android:hint="예: 010-1234-5678"
             style="@style/InputStyle" />
 
         <Button
@@ -136,7 +125,7 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:backgroundTint="@color/primary"
-            android:text="습득물 등록"
+            android:text="분실물 등록"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:layout_marginTop="20dp" />
