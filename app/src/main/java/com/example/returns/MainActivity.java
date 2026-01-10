@@ -14,7 +14,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
-
+import com.example.returns.DB.Item;
+import com.example.returns.items.ItemDetailFragment;
 import com.example.returns.add.AddFoundFragment;
 import com.example.returns.add.AddLostFragment;
 import com.example.returns.gallery.GalleryFragment;
@@ -70,31 +71,35 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
-        userNickname=getIntent().getStringExtra("userNickname");
+        // 유저 정보 처리
+        userNickname = getIntent().getStringExtra("userNickname");
         ImageView btnUser = findViewById(R.id.btn_user);
-        btnUser.setOnClickListener(v -> showUserModal(v));
+        if (btnUser != null) {
+            btnUser.setOnClickListener(v -> showUserModal(v));
+        }
     }
+
+    
+    public void showItemDetail(Item item) {
+        ItemDetailFragment detailFragment = ItemDetailFragment.newInstance(item);
+        detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
+    }
+
+    
     private void showUserModal(View anchorView) {
-        // 1. 모달 레이아웃 인플레이트
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
 
-        // 2. 데이터 설정 (예: SharedPreferences나 Intent에서 가져온 아이디)
         TextView tvUserId = modalView.findViewById(R.id.tv_modal_user_id);
-        tvUserId.setText(userNickname); // 실제 사용자 ID로 교체하세요
+        if (tvUserId != null) {
+            tvUserId.setText(userNickname);
+        }
 
-        // 3. PopupWindow 생성 (너비, 높이는 콘텐츠에 맞게)
         PopupWindow popupWindow = new PopupWindow(modalView,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                true); // true는 바깥쪽 클릭 시 닫힘 설정
+                true);
 
-        // 4. 애니메이션 추가 (원하는 경우)
         popupWindow.setElevation(10f);
-
-        // 5. 위치 설정 (btn_user 버튼 아래에 살짝 간격을 두고 표시)
         popupWindow.showAsDropDown(anchorView, 0, 10);
     }
-
-    // onCreate 안에서 호출
-
 }

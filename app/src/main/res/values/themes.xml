@@ -13,4 +13,8 @@
 
         <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView</item>
     </style>
+    <style name="RoundedCorner16">
+        <item name="cornerSize">16dp</item>
+    </style>
+
 </resources>
