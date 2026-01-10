@@ -95,12 +95,12 @@
             android:layout_marginBottom="@dimen/spacing_5"
             app:chipSpacingHorizontal="8dp"
             app:singleSelection="true">
-            <com.google.android.material.chip.Chip android:id="@+id/cat_wallet" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="지갑"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_umbrella" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="우산"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_phone" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="휴대폰"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_wallet" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="휴대폰"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_umbrella" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="노트북"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_phone" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="지갑"/>
             <com.google.android.material.chip.Chip android:id="@+id/cat_bag" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="가방"/>
             <com.google.android.material.chip.Chip android:id="@+id/cat_card" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="카드"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_key" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="열쇠"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_key" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="책"/>
             <com.google.android.material.chip.Chip android:id="@+id/cat_etc" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="기타"/>
         </com.google.android.material.chip.ChipGroup>
 
