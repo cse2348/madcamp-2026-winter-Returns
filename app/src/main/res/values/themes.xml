@@ -7,5 +7,10 @@
         <item name="colorSecondary">#2563EB</item>
         <item name="colorSecondaryVariant">#1D4ED8</item>
         <item name="colorOnSecondary">#FFFFFF</item>
+
+        <item name="itemActiveIndicatorStyle">@null</item>
+        <item name="itemRippleColor">@android:color/transparent</item>
+
+        <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView</item>
     </style>
 </resources>
