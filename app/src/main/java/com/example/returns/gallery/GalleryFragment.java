@@ -1,9 +1,11 @@
 package com.example.returns.gallery;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListPopupWindow;
@@ -54,16 +56,21 @@ public class GalleryFragment extends Fragment {
         // 2. DB 데이터 로드
         loadDataFromDB();
 
-        // 3. 검색창 로직
+        // 3. 검색창 로직 (엔터/돋보기 버튼 클릭 시에만 검색)
         EditText searchEdit = view.findViewById(R.id.searchEditText);
-        searchEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                currentSearch = s.toString();
+        searchEdit.setOnEditorActionListener((v, actionId, event) -> {
+            // actionId가 검색 버튼이거나, 엔터 키가 눌렸을 때
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+
+                currentSearch = searchEdit.getText().toString().trim();
                 applyFilters();
+
+                // 검색 실행 후 키보드 숨기기
+                hideKeyboard(searchEdit);
+                return true;
             }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            return false;
         });
 
         // 4. 카테고리 드롭다운 버튼 설정
@@ -76,8 +83,16 @@ public class GalleryFragment extends Fragment {
             if (checkedId == R.id.chipTypeAll) currentType = "전체";
             else if (checkedId == R.id.chipTypeFound) currentType = "습득";
             else if (checkedId == R.id.chipTypeLost) currentType = "분실";
-            applyFilters();
+            applyFilters(); // 칩은 즉시 반영
         });
+    }
+
+    // 키보드 숨기기 유틸리티 함수
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void showCategoryDropdown(View anchor) {
@@ -107,9 +122,16 @@ public class GalleryFragment extends Fragment {
         List<Item> items = db.itemDao().getAllItems();
         adapter.updateData(items);
     }
+
     private void applyFilters() {
         if (adapter != null) {
             adapter.filter(currentSearch, currentType, currentCategory);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadDataFromDB(); // 다른 화면에서 데이터 추가 후 돌아왔을 때 대비
     }
 }
