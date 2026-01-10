@@ -1,5 +1,6 @@
 package com.example.returns;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,10 @@ import com.example.returns.items.ItemDetailFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -133,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
-    private List<String> dummyNotifications = Arrays.asList(
+    private List<String> dummyNotification = Arrays.asList(
             "투명 비닐우산 분실",
             "파란색 지갑 발견",
             "아이폰 15 프로 분실"
@@ -148,18 +151,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 알림을 담을 부모 레이아웃과 빈 상태 텍스트뷰 가져오기
-        LinearLayout layoutNotifications = modalView.findViewById(R.id.layout_notifications);
-        TextView tvNoNotifications = modalView.findViewById(R.id.tv_no_notifications);
+        LinearLayout layoutNotification = modalView.findViewById(R.id.layout_user_modal);
+        TextView tvNoNotification = modalView.findViewById(R.id.item_no_notification);
 
         // 2. 알림 리스트 처리 메커니즘
-        if (dummyNotifications == null || dummyNotifications.isEmpty()) {
-            tvNoNotifications.setVisibility(View.VISIBLE);
+        if (dummyNotification == null || dummyNotification.isEmpty()) {
+            tvNoNotification.setVisibility(View.VISIBLE);
         } else {
-            tvNoNotifications.setVisibility(View.GONE); // "알림 없음" 숨기기
+            tvNoNotification.setVisibility(View.GONE); // "알림 없음" 숨기기
 
             // 리스트를 돌면서 동적으로 항목 추가
-            for (String title : dummyNotifications) {
-                View itemView = getLayoutInflater().inflate(R.layout.item_notification, null);
+            for (String title : dummyNotification) {
+                View itemView = getLayoutInflater().inflate(R.id.layout_item_notification, null);
 
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
                 String printingtitle;
@@ -173,14 +176,14 @@ public class MainActivity extends AppCompatActivity {
                     //Toast.makeText(this, title + " 확인 완료", Toast.LENGTH_SHORT).show();
                 });
 
-                layoutNotifications.addView(itemView); // 실제 레이아웃에 추가
+                layoutNotification.addView(itemView); // 실제 레이아웃에 추가
 
                 // 항목 간 구분선 추가 (마지막 항목 제외)
-                if (dummyNotifications.indexOf(title) != dummyNotifications.size() - 1) {
+                if (dummyNotification.indexOf(title) != dummyNotification.size() - 1) {
                     View divider = new View(this);
                     divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
                     divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
-                    layoutNotifications.addView(divider);
+                    layoutNotification.addView(divider);
                 }
             }
         }
