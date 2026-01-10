@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
+import com.example.returns.MainActivity;
 import com.example.returns.R;
 
 import com.google.android.material.button.MaterialButton;
@@ -41,6 +42,13 @@ public class GalleryFragment extends Fragment {
         RecyclerView rv = view.findViewById(R.id.galleryRecyclerView);
         rv.setLayoutManager(new GridLayoutManager(getContext(), 2));
         adapter = new GalleryAdapter();
+
+        adapter.setOnItemClickListener(item -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showItemDetail(item);
+            }
+        });
+
         rv.setAdapter(adapter);
 
         // 2. DB 데이터 로드
@@ -96,28 +104,9 @@ public class GalleryFragment extends Fragment {
 
     private void loadDataFromDB() {
         AppDatabase db = AppDatabase.getInstance(getContext());
-        if (db.itemDao().getAllItems().isEmpty()) {
-            Item testItem1 = new Item();
-            testItem1.setTitle("검은색 가죽 지갑");
-            testItem1.setCategory("지갑");
-            testItem1.setType("FOUND");
-            testItem1.setLocation("본관 1층 로비");
-            testItem1.setDateOccurred("2026-01-09");
-
-            Item testItem2 = new Item();
-            testItem2.setTitle("아이폰 15 핑크");
-            testItem2.setCategory("휴대폰");
-            testItem2.setType("LOST");
-            testItem2.setLocation("학생회관 식당");
-            testItem2.setDateOccurred("2026-01-08");
-
-            db.itemDao().insert(testItem1);
-            db.itemDao().insert(testItem2);
-        }
         List<Item> items = db.itemDao().getAllItems();
         adapter.updateData(items);
     }
-
     private void applyFilters() {
         if (adapter != null) {
             adapter.filter(currentSearch, currentType, currentCategory);

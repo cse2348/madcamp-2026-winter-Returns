@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.returns.R;
 import com.example.returns.DB.Item;
 
@@ -19,12 +20,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     private List<Item> itemList;
     private OnItemClickListener listener;
 
-    // 1. 클릭 리스너 인터페이스 정의
     public interface OnItemClickListener {
         void onItemClick(Item item);
     }
 
-    // 2. 생성자 수정
     public ItemAdapter(List<Item> itemList, OnItemClickListener listener) {
         this.itemList = itemList;
         this.listener = listener;
@@ -41,21 +40,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = itemList.get(position);
 
-        // 데이터 바인딩
+        // 1. 텍스트 데이터 바인딩
         holder.txtItemTitle.setText(item.getTitle());
         holder.txtItemLocation.setText(item.getLocation());
         holder.txtCategoryBadge.setText(item.getCategory());
 
-        // 타입 배지 설정 (습득/분실)
+        // 2. 타입 배지 설정
         if ("FOUND".equals(item.getType())) {
             holder.txtTypeBadge.setText("습득");
-            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#1E3A8A")); // 파란색
+            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#1E3A8A"));
         } else {
             holder.txtTypeBadge.setText("분실");
-            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#EF4444")); // 빨간색
+            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#EF4444"));
         }
 
-        //  아이템 클릭 리스너 연결
+        //  3. 이미지 로딩 로직 추가
+        Glide.with(holder.itemView.getContext())
+                .load(item.getImageUriString())
+                .placeholder(R.drawable.ic_placeholder)
+                .error(R.drawable.ic_placeholder)
+                .into(holder.imgItem);
+
+        // 4. 아이템 클릭 리스너 연결
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(item);
