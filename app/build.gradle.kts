@@ -40,6 +40,10 @@ dependencies {
     // Room 테스트를 위한 라이브러리
     testImplementation("androidx.room:room-testing:$roomVersion")
 
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+
+    //Glide 관련 설정 (이미지 로딩 라이브러리)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
