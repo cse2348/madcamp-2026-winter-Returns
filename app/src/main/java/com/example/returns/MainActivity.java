@@ -1,5 +1,6 @@
 package com.example.returns;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,10 @@ import com.example.returns.items.ItemDetailFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,10 +79,12 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        // 4. 처음 실행 시 홈 탭이 디폴트
         if (savedInstanceState == null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
+        // 유저 정보 처리
         userNickname = getIntent().getStringExtra("userNickname");
         ImageView btnUser = findViewById(R.id.btn_user);
         if (btnUser != null) {
@@ -131,13 +136,59 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
+    private List<String> dummyNotification = Arrays.asList(
+            "투명 비닐우산 분실",
+            "파란색 지갑 발견",
+            "아이폰 15 프로 분실"
+    );
+
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
+
         TextView tvUserId = modalView.findViewById(R.id.tv_modal_user_id);
         if (tvUserId != null) {
             tvUserId.setText(userNickname);
         }
 
+        // 알림을 담을 부모 레이아웃과 빈 상태 텍스트뷰 가져오기
+        LinearLayout layoutNotification = modalView.findViewById(R.id.layout_user_modal);
+        LinearLayout tvNoNotification = modalView.findViewById(R.id.layout_no_notification);
+
+        // 2. 알림 리스트 처리 메커니즘
+        if (dummyNotification == null || dummyNotification.isEmpty()) {
+            tvNoNotification.setVisibility(View.VISIBLE);
+        } else {
+            tvNoNotification.setVisibility(View.GONE); // "알림 없음" 숨기기
+
+            // 리스트를 돌면서 동적으로 항목 추가
+            for (String title : dummyNotification) {
+                View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, null);
+
+                TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
+                String printingtitle;
+                if(title.length()<20)printingtitle=title;
+                else printingtitle=title.substring(0,17)+"...";
+                // 이미지와 동일한 문구 구성
+                tvMessage.setText("누군가가\n\"" + printingtitle + "\" 게시물에 댓글을 남겼습니다.");
+
+                // 확인 버튼 클릭 이벤트
+                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
+                    //Toast.makeText(this, title + " 확인 완료", Toast.LENGTH_SHORT).show();
+                });
+
+                layoutNotification.addView(itemView); // 실제 레이아웃에 추가
+
+                // 항목 간 구분선 추가 (마지막 항목 제외)
+                if (dummyNotification.indexOf(title) != dummyNotification.size() - 1) {
+                    View divider = new View(this);
+                    divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
+                    divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
+                    layoutNotification.addView(divider);
+                }
+            }
+        }
+
+        // PopupWindow 생성 및 표시
         PopupWindow popupWindow = new PopupWindow(modalView,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
