@@ -10,44 +10,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_4">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginBottom="@dimen/spacing_5">
+            android:layout_marginBottom="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="습득하신 물건의 특징을 입력해주세요"
-                android:textColor="@color/text_foreground"
+                android:text="습득하신 물건의 정보를 입력해주세요"
+                android:textColor="#1E293B"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="(자세하게 입력할수록 물건을 잃은 분을 찾을 확률이 높아집니다.)"
-                android:textColor="@color/text_muted"
+                android:text="(자세하게 입력할수록 주인을 찾을 확률이 높아집니다.)"
+                android:textColor="#64748B"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <TextView
-            android:text="제목"
-            style="@style/LabelStyle" />
+        <TextView android:text="제목" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_title"
             android:hint="예: 검정 지갑 습득"
-            android:minLines="1"
-            style="@style/InputStyle" />
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_rounded_input"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"/>
 
-        <TextView
-            android:text="물건이미지"
-            style="@style/LabelStyle" />
+        <TextView android:text="물건 이미지" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <LinearLayout
             android:id="@+id/btn_image_add"
             android:layout_width="80dp"
@@ -55,92 +54,106 @@
             android:background="@drawable/border_dashed"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginBottom="@dimen/spacing_5">
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_camera"
-                app:tint="@color/text_muted" />
+                app:tint="#64748B" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="사진 추가"
                 android:textSize="10sp"
-                android:textColor="@color/text_muted" />
+                android:textColor="#64748B" />
         </LinearLayout>
 
-        <TextView
-            android:text="찾은곳"
-            style="@style/LabelStyle" />
+        <TextView android:text="습득한 곳" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_location"
             android:hint="예: 도서관 1층 입구"
-            style="@style/InputStyle" />
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_rounded_input"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="시간" style="@style/LabelStyle" />
+        <TextView android:text="습득 시간" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_time"
             android:hint="날짜와 시간을 선택하세요"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_rounded_input"
+            android:padding="10dp"
             android:focusable="false"
             android:clickable="true"
             android:drawableEnd="@drawable/ic_calendarplus"
-            android:drawablePadding="8dp"
-            style="@style/InputStyle" />
+            android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="종류" style="@style/LabelStyle" />
+        <TextView android:text="종류" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_5"
+            android:layout_marginBottom="16dp"
             app:chipSpacingHorizontal="8dp"
             app:singleSelection="true">
-            <com.google.android.material.chip.Chip android:id="@+id/cat_wallet" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="휴대폰"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_umbrella" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="노트북"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_phone" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="지갑"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_bag" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="우산"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_card" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="가방"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_key" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="카드"/>
-            <com.google.android.material.chip.Chip android:id="@+id/cat_key" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="책"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_phone" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="휴대폰"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_laptop" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="노트북"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_wallet" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="지갑"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_umbrella" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="우산"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_bag" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="가방"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_card" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="카드"/>
+            <com.google.android.material.chip.Chip android:id="@+id/cat_book" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="책"/>
             <com.google.android.material.chip.Chip android:id="@+id/cat_etc" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="기타"/>
         </com.google.android.material.chip.ChipGroup>
 
-        <TextView android:text="특징" style="@style/LabelStyle" />
+        <TextView android:text="상세 특징" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_features"
-            android:hint="예: 손잡이에 스티커가 있음"
+            android:hint="예: 빨간색 스티커가 붙어있음"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="top"
             android:minHeight="80dp"
-            android:paddingTop="12dp"
-            style="@style/InputStyle" />
+            android:gravity="top"
+            android:background="@drawable/bg_rounded_input"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="현재 보관 장소" style="@style/LabelStyle" />
+        <TextView android:text="현재 보관 장소" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_storage"
-            android:hint="예: 경비실"
-            style="@style/InputStyle" />
+            android:hint="예: 본관 경비실"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_rounded_input"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"/>
 
-        <TextView android:text="찾는 방법" style="@style/LabelStyle" />
+        <TextView android:text="찾는 방법" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:layout_marginBottom="8dp"/>
         <EditText
             android:id="@+id/et_how_to_find"
-            android:hint="예: 경비실에서 신분증 확인 후 수령"
+            android:hint="예: 신분증 지참 후 방문 수령"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minLines="2"
-            android:gravity="top"
             android:minHeight="80dp"
-            android:paddingTop="12dp"
-            style="@style/InputStyle" />
+            android:gravity="top"
+            android:background="@drawable/bg_rounded_input"
+            android:padding="10dp"
+            android:layout_marginBottom="24dp"/>
 
         <Button
             android:id="@+id/btn_submit"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:backgroundTint="@color/primary"
-            android:text="습득물 등록"
+            android:backgroundTint="#1E3A8A"
+            app:cornerRadius="12dp"
+            android:text="습득물 등록하기"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:layout_marginTop="20dp" />
+            android:layout_marginBottom="20dp" />
     </LinearLayout>
-
 </ScrollView>

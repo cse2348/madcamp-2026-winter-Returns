@@ -8,6 +8,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.returns.add.AddFoundFragment;
+import com.example.returns.add.AddLostFragment;
 import com.example.returns.gallery.GalleryFragment;
 import com.example.returns.home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -39,8 +41,11 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new HomeFragment();
             } else if (itemId == R.id.nav_gallery) {
                 selectedFragment = new GalleryFragment();
+            } else if (itemId == R.id.nav_found) {
+                selectedFragment = new AddFoundFragment();
+            } else if (itemId == R.id.nav_lost) {
+                selectedFragment = new AddLostFragment();
             }
-
 
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
