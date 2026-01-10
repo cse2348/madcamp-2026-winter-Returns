@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
 import com.example.returns.R;
+import com.example.returns.home.HomeFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -123,8 +124,10 @@ public class AddFoundFragment extends Fragment {
 
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "습득물이 등록되었습니다.", Toast.LENGTH_SHORT).show();
-                            requireActivity().onBackPressed();
+                            Toast.makeText(getContext(), "습득물 등록 완료!", Toast.LENGTH_SHORT).show();
+                            getParentFragmentManager().beginTransaction()
+                                    .replace(R.id.container,new HomeFragment())
+                                    .commit();
                         });
                     }
                 } catch (Exception e) {
