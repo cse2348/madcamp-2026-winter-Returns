@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.List;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
         tvMessage.setText(String.format("%s님이 \"%s\" 게시물에 댓글을 남겼습니다.", commenterName, itemTitle));
         tvTime.setText(new SimpleDateFormat("yyyy. M. d. a h:mm:ss", Locale.KOREA).format(new Date()));
 
+        pendingNotification.add(itemTitle);
+
+
         // RelativeLayout에 맞춘 레이아웃 설정
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -119,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         notiView.setElevation(20f);
 
         rootLayout.addView(notiView);
+        popupWindow.dismiss();
 
         // 애니메이션 효과
         notiView.setAlpha(0f);
@@ -136,11 +141,10 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
-    private List<String> dummyNotification = Arrays.asList(
-            "투명 비닐우산 분실",
-            "파란색 지갑 발견",
-            "아이폰 15 프로 분실"
-    );
+    private List<String> pendingNotification = new ArrayList<>(Arrays.asList(
+
+    ));
+    PopupWindow popupWindow;
 
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
@@ -155,13 +159,13 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout tvNoNotification = modalView.findViewById(R.id.layout_no_notification);
 
         // 2. 알림 리스트 처리 메커니즘
-        if (dummyNotification == null || dummyNotification.isEmpty()) {
+        if (pendingNotification == null || pendingNotification.isEmpty()) {
             tvNoNotification.setVisibility(View.VISIBLE);
         } else {
             tvNoNotification.setVisibility(View.GONE); // "알림 없음" 숨기기
 
             // 리스트를 돌면서 동적으로 항목 추가
-            for (String title : dummyNotification) {
+            for (String title : pendingNotification) {
                 View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, null);
 
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
@@ -171,25 +175,34 @@ public class MainActivity extends AppCompatActivity {
                 // 이미지와 동일한 문구 구성
                 tvMessage.setText("누군가가\n\"" + printingtitle + "\" 게시물에 댓글을 남겼습니다.");
 
-                // 확인 버튼 클릭 이벤트
-                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
-                    //Toast.makeText(this, title + " 확인 완료", Toast.LENGTH_SHORT).show();
-                });
-
                 layoutNotification.addView(itemView); // 실제 레이아웃에 추가
 
+                View divider;
                 // 항목 간 구분선 추가 (마지막 항목 제외)
-                if (dummyNotification.indexOf(title) != dummyNotification.size() - 1) {
-                    View divider = new View(this);
+                if (pendingNotification.indexOf(title) != pendingNotification.size() - 1) {
+                    divider = new View(this);
                     divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
                     divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
                     layoutNotification.addView(divider);
+                } else {
+                    divider = null;
                 }
+
+                // 확인 버튼 클릭 이벤트
+                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
+                    layoutNotification.removeView(itemView);
+                    if(divider!=null)layoutNotification.removeView(divider);
+                    pendingNotification.remove(title);
+                    if(pendingNotification.isEmpty()){
+                        tvNoNotification.setVisibility(View.VISIBLE);
+                    }
+                });
+
             }
         }
 
         // PopupWindow 생성 및 표시
-        PopupWindow popupWindow = new PopupWindow(modalView,
+        popupWindow = new PopupWindow(modalView,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 true);
