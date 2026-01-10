@@ -17,9 +17,17 @@ import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     private List<Item> itemList;
+    private OnItemClickListener listener;
 
-    public ItemAdapter(List<Item> itemList) {
+    // 1. 클릭 리스너 인터페이스 정의
+    public interface OnItemClickListener {
+        void onItemClick(Item item);
+    }
+
+    // 2. 생성자 수정
+    public ItemAdapter(List<Item> itemList, OnItemClickListener listener) {
         this.itemList = itemList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -33,21 +41,26 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = itemList.get(position);
 
-        // 1. 텍스트 데이터 연결
+        // 데이터 바인딩
         holder.txtItemTitle.setText(item.getTitle());
         holder.txtItemLocation.setText(item.getLocation());
         holder.txtCategoryBadge.setText(item.getCategory());
 
-        // 2. 타입 배지 설정 (습득/분실)
+        // 타입 배지 설정 (습득/분실)
         if ("FOUND".equals(item.getType())) {
             holder.txtTypeBadge.setText("습득");
-            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#1E3A8A"));
+            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#1E3A8A")); // 파란색
         } else {
             holder.txtTypeBadge.setText("분실");
-            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#EF4444"));
+            holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#EF4444")); // 빨간색
         }
 
-
+        //  아이템 클릭 리스너 연결
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(item);
+            }
+        });
     }
 
     @Override

@@ -8,6 +8,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.returns.DB.Item; // 추가됨
+import com.example.returns.items.ItemDetailFragment; // 추가됨
 import com.example.returns.add.AddFoundFragment;
 import com.example.returns.add.AddLostFragment;
 import com.example.returns.gallery.GalleryFragment;
@@ -60,5 +62,14 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
+    }
+
+    /**
+     * [이 부분이 추가되었습니다]
+     * 아이템 객체를 받아 상세 BottomSheet를 띄우는 메서드
+     */
+    public void showItemDetail(Item item) {
+        ItemDetailFragment detailFragment = ItemDetailFragment.newInstance(item);
+        detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 }

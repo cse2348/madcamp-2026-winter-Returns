@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
 import com.example.returns.DB.ItemDao;
+import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
@@ -46,7 +47,15 @@ public class HomeFragment extends Fragment {
         // 1. 리사이클러뷰 설정
         RecyclerView rv = view.findViewById(R.id.recyclerView);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ItemAdapter(filteredList);
+
+        // 어댑터 생성 및 클릭 리스너 연결
+        adapter = new ItemAdapter(filteredList, item -> {
+            // MainActivity의 메서드를 호출하여 상세 페이지(BottomSheet)를 띄움
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showItemDetail(item);
+            }
+        }); // 이 부분의 괄호를 닫아주었습니다.
+
         rv.setAdapter(adapter);
 
         // 2. 검색창 로직
@@ -106,28 +115,25 @@ public class HomeFragment extends Fragment {
         for (Item item : allItems) {
             if (item == null) continue;
 
-            // 1. 검색어 필터 (제목/위치가 null일 경우를 대비해 빈 문자열 처리)
+            // 1. 검색어 필터
             String title = (item.getTitle() != null) ? item.getTitle().toLowerCase() : "";
             String location = (item.getLocation() != null) ? item.getLocation().toLowerCase() : "";
-
             boolean matchesSearch = title.contains(searchKeyword) || location.contains(searchKeyword);
 
-            // 2. 타입 필터 ("전체", "습득", "분실" 비교)
+            // 2. 타입 필터
             boolean matchesType = "전체".equals(currentType) ||
                     ("습득".equals(currentType) && "FOUND".equals(item.getType())) ||
                     ("분실".equals(currentType) && "LOST".equals(item.getType()));
 
-            // 3. 카테고리 필터 (아이템의 카테고리가 null인지 먼저 체크)
+            // 3. 카테고리 필터
             boolean matchesCategory = "전체".equals(currentCategory) ||
                     (item.getCategory() != null && item.getCategory().equals(currentCategory));
 
-            // 모든 조건 충족 시 추가
             if (matchesSearch && matchesType && matchesCategory) {
                 filteredList.add(item);
             }
         }
 
-        // 리스트 갱신
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
