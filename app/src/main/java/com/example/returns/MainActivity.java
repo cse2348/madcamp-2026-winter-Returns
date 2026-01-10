@@ -85,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
+    private List<String> dummyNotifications = Arrays.asList(
+            "투명 비닐우산 분실",
+            "파란색 지갑 발견",
+            "아이폰 15 프로 분실"
+    );
     
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
@@ -94,12 +99,52 @@ public class MainActivity extends AppCompatActivity {
             tvUserId.setText(userNickname);
         }
 
+        // 알림을 담을 부모 레이아웃과 빈 상태 텍스트뷰 가져오기
+        LinearLayout layoutNotifications = modalView.findViewById(R.id.layout_notifications);
+        TextView tvNoNotifications = modalView.findViewById(R.id.tv_no_notifications);
+
+        // 2. 알림 리스트 처리 메커니즘
+        if (dummyNotifications == null || dummyNotifications.isEmpty()) {
+            tvNoNotifications.setVisibility(View.VISIBLE);
+        } else {
+            tvNoNotifications.setVisibility(View.GONE); // "알림 없음" 숨기기
+
+            // 리스트를 돌면서 동적으로 항목 추가
+            for (String title : dummyNotifications) {
+                View itemView = getLayoutInflater().inflate(R.layout.item_notification, null);
+
+                TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
+                // 이미지와 동일한 문구 구성
+                tvMessage.setText("누군가가\n\"" + title + "\" 게시물에 댓글을 남겼습니다.");
+
+                // 확인 버튼 클릭 이벤트
+                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
+                    Toast.makeText(this, title + " 확인 완료", Toast.LENGTH_SHORT).show();
+                });
+
+                layoutNotifications.addView(itemView); // 실제 레이아웃에 추가
+
+                // 항목 간 구분선 추가 (마지막 항목 제외)
+                if (dummyNotifications.indexOf(title) != dummyNotifications.size() - 1) {
+                    View divider = new View(this);
+                    divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
+                    divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
+                    layoutNotifications.addView(divider);
+                }
+            }
+        }
+
+        // PopupWindow 생성 및 표시
         PopupWindow popupWindow = new PopupWindow(modalView,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                320, // 이미지 비율에 맞춰 너비 고정 권장
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 true);
 
-        popupWindow.setElevation(10f);
-        popupWindow.showAsDropDown(anchorView, 0, 10);
+        popupWindow.setElevation(20f);
+        // 버튼의 위치에 따라 적절히 오프셋 조정
+        popupWindow.showAsDropDown(anchorView, -750, 10);
     }
+
+
+
 }
