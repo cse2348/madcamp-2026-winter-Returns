@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class ItemDetailFragment extends BottomSheetDialogFragment {
 
-    private Item item;
+    private Item item; // 전달받은 아이템 데이터
 
     // UI 컴포넌트
     private TextView badgeType, badgeCategory, badgeStatus;
@@ -28,10 +29,11 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     private Button btnClaim;
     private View layoutDetailContent, layoutClaimForm;
 
+    // 1. 프래그먼트 생성 시 데이터를 전달받기 위한 static 메서드
     public static ItemDetailFragment newInstance(Item item) {
         ItemDetailFragment fragment = new ItemDetailFragment();
         Bundle args = new Bundle();
-        args.putSerializable("item_data", item);
+        args.putSerializable("item_data", item); // Item 클래스가 Serializable이므로 가능
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,21 +49,14 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_item_detail, container, false);
-    }
+        View v = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        if (getDialog() != null && getDialog().getWindow() != null) {
-            getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
-
-        initViews(view);
+        initViews(v);
         if (item != null) {
             displayItemData();
         }
+
+        return v;
     }
 
     private void initViews(View v) {
@@ -118,14 +113,13 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         badgeStatus.setText(status);
 
         if ("찾아감".equals(status)) {
-            badgeStatus.setTextColor(Color.parseColor("#000000"));
-            badgeStatus.getBackground().setTint(Color.parseColor("#F3F4F6"));
+            badgeStatus.setTextColor(Color.parseColor("#000000")); // 초록색 강조
             btnClaim.setVisibility(View.GONE);
         } else {
-            // 미해결 상태일 때의 색상
-            badgeStatus.setTextColor(Color.parseColor("#999999"));
-            badgeStatus.getBackground().setTintList(null);
+            badgeStatus.setTextColor(Color.parseColor("#999999")); // 미해결은 회색
             btnClaim.setVisibility(View.VISIBLE);
         }
+
+
     }
 }
