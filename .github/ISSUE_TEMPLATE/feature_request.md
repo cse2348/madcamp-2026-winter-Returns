@@ -1,7 +1,7 @@
 ---
 name: "Feature Report"
 about: "새로운 기능 개발 요청을 기록합니다"
-title: "[FEATURE] "
+title: "[FEAT] "
 labels: ["FEAT"]
 assignees: ""
 ---
