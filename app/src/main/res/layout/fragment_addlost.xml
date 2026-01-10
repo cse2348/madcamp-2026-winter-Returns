@@ -163,25 +163,6 @@
             android:gravity="top"
             android:background="@drawable/bg_rounded_input"
             android:padding="10dp"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:text="본인 연락처"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textColor="#1E293B"
-            android:layout_marginBottom="8dp"/>
-        <EditText
-            android:id="@+id/et_contact_phone"
-            android:hint="예: 010-1234-5678"
-            android:textColor="#1E293B"
-            android:textColorHint="#94A3B8"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_rounded_input"
-            android:padding="10dp"
-            android:inputType="phone"
             android:layout_marginBottom="24dp"/>
 
         <Button

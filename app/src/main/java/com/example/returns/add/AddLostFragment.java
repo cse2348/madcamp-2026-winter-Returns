@@ -42,7 +42,6 @@ public class AddLostFragment extends Fragment {
         EditText etLocation = view.findViewById(R.id.et_location);
         EditText etTime = view.findViewById(R.id.et_time);
         EditText etFeatures = view.findViewById(R.id.et_features);
-        EditText etContact = view.findViewById(R.id.et_contact_phone);
         ChipGroup chipGroup = view.findViewById(R.id.chip_group_category);
         ivPhoto = view.findViewById(R.id.iv_photo);
         View btnImageAdd = view.findViewById(R.id.btn_image_add);
@@ -90,7 +89,6 @@ public class AddLostFragment extends Fragment {
             newItem.setLocation(location);
             newItem.setDateOccurred(etTime.getText().toString());
             newItem.setNotes(etFeatures.getText().toString());
-            newItem.setContactPhone(etContact.getText().toString());
 
             newItem.setType("LOST");
             newItem.setStatus("미발견");

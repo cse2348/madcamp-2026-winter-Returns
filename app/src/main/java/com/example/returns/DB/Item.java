@@ -18,8 +18,7 @@ public class Item implements Serializable {
     private String dateOccurred;   // 날짜
     private String status;         // "보관중", "찾아감", "미발견"
     private String authorNickname; // 작성자 닉네임 (본인 확인용)
-    private String contactName;
-    private String contactPhone;   // 연락처 전화번호
+    private String contactName;    // 연락처 이름
     private String notes;          // 특징/추가 설명
     private String handledBy;      // 보관 장소
     private String imageUriString; // 이미지 경로 (String 형태)
@@ -54,9 +53,6 @@ public class Item implements Serializable {
 
     public String getContactName() { return contactName; }
     public void setContactName(String contactName) { this.contactName = contactName; }
-
-    public String getContactPhone() { return contactPhone; }
-    public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
