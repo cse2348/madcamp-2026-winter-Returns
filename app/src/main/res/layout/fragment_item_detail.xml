@@ -114,7 +114,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:hint="댓글을 입력하세요..."
+                    android:hint="댓글을 입력하세요"
                     android:background="@drawable/bg_muted_rounded_12"
                     android:padding="12dp"
                     android:textSize="14sp" />
