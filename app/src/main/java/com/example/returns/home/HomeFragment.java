@@ -1,9 +1,11 @@
 package com.example.returns.home;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListPopupWindow;
@@ -48,42 +50,53 @@ public class HomeFragment extends Fragment {
         RecyclerView rv = view.findViewById(R.id.recyclerView);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 어댑터 생성 및 클릭 리스너 연결
+        // 어댑터 생성 및 클릭 리스너 연결 (상세보기 호출)
         adapter = new ItemAdapter(filteredList, item -> {
-            // MainActivity의 메서드를 호출하여 상세 페이지(BottomSheet)를 띄움
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).showItemDetail(item);
             }
-        }); // 이 부분의 괄호를 닫아주었습니다.
-
+        });
         rv.setAdapter(adapter);
 
-        // 2. 검색창 로직
+        // 2. 검색창 로직 (엔터/돋보기 버튼 클릭 시에만 검색)
         EditText searchEdit = view.findViewById(R.id.searchEditText);
-        searchEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                currentSearch = (s != null) ? s.toString() : "";
-                applyFilters();
+        searchEdit.setOnEditorActionListener((v, actionId, event) -> {
+            // 키보드의 검색(돋보기) 버튼 또는 엔터 키가 눌렸을 때
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+
+                currentSearch = searchEdit.getText().toString().trim();
+                applyFilters(); // 필터 적용 및 리스트 업데이트
+
+                // 검색 후 키보드 숨기기
+                hideKeyboard(searchEdit);
+                return true;
             }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            return false;
         });
 
-        // 3. 카테고리 드롭다운
+        // 3. 카테고리 드롭다운 설정
         btnCategoryDropdown = view.findViewById(R.id.btnCategoryDropdown);
         btnCategoryDropdown.setOnClickListener(v -> showCategoryDropdown(v));
 
-        // 4. 타입 (전체/습득/분실)
+        // 4. 타입 필터 (전체/습득/분실)
         ChipGroup typeGroup = view.findViewById(R.id.typeChipGroup);
         typeGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chipTypeAll) currentType = "전체";
             else if (checkedId == R.id.chipTypeFound) currentType = "습득";
             else if (checkedId == R.id.chipTypeLost) currentType = "분실";
-            applyFilters();
+            applyFilters(); // 칩은 누르는 즉시 반영되도록 유지
         });
 
         loadData();
+    }
+
+    // 키보드 숨기기 유틸리티 함수
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void showCategoryDropdown(View anchor) {
@@ -109,21 +122,20 @@ public class HomeFragment extends Fragment {
 
     private void applyFilters() {
         filteredList.clear();
-
-        String searchKeyword = (currentSearch != null) ? currentSearch.toLowerCase() : "";
+        String searchKeyword = currentSearch.toLowerCase();
 
         for (Item item : allItems) {
             if (item == null) continue;
 
-            // 1. 검색어 필터
+            // 1. 검색어 필터 (제목 또는 위치에 포함된 경우)
             String title = (item.getTitle() != null) ? item.getTitle().toLowerCase() : "";
             String location = (item.getLocation() != null) ? item.getLocation().toLowerCase() : "";
             boolean matchesSearch = title.contains(searchKeyword) || location.contains(searchKeyword);
 
-            // 2. 타입 필터
+            // 2. 타입 필터 (습득/분실)
             boolean matchesType = "전체".equals(currentType) ||
-                    ("습득".equals(currentType) && "FOUND".equals(item.getType())) ||
-                    ("분실".equals(currentType) && "LOST".equals(item.getType()));
+                    ("습득".equals(currentType) && "FOUND".equalsIgnoreCase(item.getType())) ||
+                    ("분실".equals(currentType) && "LOST".equalsIgnoreCase(item.getType()));
 
             // 3. 카테고리 필터
             boolean matchesCategory = "전체".equals(currentCategory) ||
