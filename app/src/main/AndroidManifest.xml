@@ -12,10 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Returns"
         tools:targetApi="31">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-        </activity>
+
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -24,6 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
