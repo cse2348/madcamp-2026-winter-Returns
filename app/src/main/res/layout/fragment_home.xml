@@ -50,8 +50,6 @@
             android:text="태그: 전체"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
             app:backgroundTint="@null"
             app:icon="@android:drawable/arrow_down_float"
             app:iconGravity="textEnd"
@@ -83,7 +81,8 @@
                 android:layout_height="wrap_content"
                 android:text="습득"
                 android:textColor="@color/chip_text_state_list"
-                app:chipBackgroundColor="@color/chip_bg_state_list" />
+                app:chipBackgroundColor="@color/chip_bg_state_list"
+                />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipTypeLost"
@@ -92,16 +91,16 @@
                 android:layout_height="wrap_content"
                 android:text="분실"
                 android:textColor="@color/chip_text_state_list"
-                app:chipBackgroundColor="@color/chip_bg_state_list" />
+                app:chipBackgroundColor="@color/chip_bg_state_list"
+                />
         </com.google.android.material.chip.ChipGroup>
-
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/galleryRecyclerView"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:padding="8dp" />
+        android:paddingBottom="80dp" />
 
 </LinearLayout>
