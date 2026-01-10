@@ -1,6 +1,12 @@
 package com.example.returns;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.PopupWindow;
+import android.widget.LinearLayout;
+import android.widget.ImageView;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -17,6 +23,8 @@ import com.example.returns.home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private String userNickname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +70,36 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
+
+        // 유저 정보 처리
+        userNickname = getIntent().getStringExtra("userNickname");
+        ImageView btnUser = findViewById(R.id.btn_user);
+        if (btnUser != null) {
+            btnUser.setOnClickListener(v -> showUserModal(v));
+        }
     }
 
+    
     public void showItemDetail(Item item) {
         ItemDetailFragment detailFragment = ItemDetailFragment.newInstance(item);
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
+    }
+
+    
+    private void showUserModal(View anchorView) {
+        View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
+
+        TextView tvUserId = modalView.findViewById(R.id.tv_modal_user_id);
+        if (tvUserId != null) {
+            tvUserId.setText(userNickname);
+        }
+
+        PopupWindow popupWindow = new PopupWindow(modalView,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                true);
+
+        popupWindow.setElevation(10f);
+        popupWindow.showAsDropDown(anchorView, 0, 10);
     }
 }

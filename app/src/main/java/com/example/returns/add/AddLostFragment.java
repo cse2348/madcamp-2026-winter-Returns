@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
 import com.example.returns.R;
+import com.example.returns.home.HomeFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -116,13 +117,19 @@ public class AddLostFragment extends Fragment {
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "분실물 등록 완료!", Toast.LENGTH_SHORT).show();
-                            requireActivity().onBackPressed();
+                            getParentFragmentManager().beginTransaction()
+                                    .replace(R.id.container,new HomeFragment())
+                                    .commit();
                         });
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    );
                 }
             }).start();
+
         });
     }
 }
