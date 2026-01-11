@@ -1,5 +1,7 @@
 package com.example.returns;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -46,17 +48,21 @@ public class MainActivity extends AppCompatActivity {
 
         rootLayout = findViewById(R.id.main);
 
-        // 1. 시스템 바 패딩 설정
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // 2. 하단 내비게이션 뷰 초기화
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        // 1. 유저 정보 처리 및 데이터 저장 (수정됨)
+        userNickname = getIntent().getStringExtra("userNickname");
+        if (userNickname != null) {
+            // 상세 페이지(Fragment)에서 꺼내 쓸 수 있도록 저장소에 저장합니다.
+            SharedPreferences pref = getSharedPreferences("UserToken", MODE_PRIVATE);
+            pref.edit().putString("nickName", userNickname).apply();
+        }
 
-        // 3. 탭 클릭 시 화면 전환 리스너 설정
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -80,24 +86,29 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // 4. 처음 실행 시 홈 탭이 디폴트
         if (savedInstanceState == null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
-        // 유저 정보 처리
-        userNickname = getIntent().getStringExtra("userNickname");
         ImageView btnUser = findViewById(R.id.btn_user);
         if (btnUser != null) {
             btnUser.setOnClickListener(v -> showUserModal(v));
         }
     }
 
+    // ★ 메인 화면 즉시 새로고침 메서드
+    public void refreshCurrentFragment() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (currentFragment instanceof HomeFragment) {
+            ((HomeFragment) currentFragment).loadData();
+        } else if (currentFragment instanceof GalleryFragment) {
+            ((GalleryFragment) currentFragment).loadData();
+        }
+    }
 
     public void handleCommentAdded(int itemId, String itemTitle, String commenterName) {
         LayoutInflater inflater = getLayoutInflater();
         View notiView = inflater.inflate(R.layout.layout_notification_popup, rootLayout, false);
-
         TextView tvMessage = notiView.findViewById(R.id.tvNotiMessage);
         TextView tvTime = notiView.findViewById(R.id.tvNotiTime);
         TextView btnConfirm = notiView.findViewById(R.id.btnNotiConfirm);
@@ -106,22 +117,11 @@ public class MainActivity extends AppCompatActivity {
         tvTime.setText(new SimpleDateFormat("yyyy. M. d. a h:mm:ss", Locale.KOREA).format(new Date()));
 
         pendingNotification.add(itemTitle);
-
-
-        // RelativeLayout에 맞춘 레이아웃 설정
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        params.topMargin = 50;
-        params.leftMargin = 30;
-        params.rightMargin = 30;
+        params.topMargin = 50; params.leftMargin = 30; params.rightMargin = 30;
         notiView.setLayoutParams(params);
-
-        // 팝업이 헤더보다 위에 보이도록 설정
         notiView.setElevation(20f);
-
         rootLayout.addView(notiView);
         popupWindow.dismiss();
 
@@ -130,9 +130,7 @@ public class MainActivity extends AppCompatActivity {
         notiView.animate().alpha(1f).setDuration(500).start();
 
         btnConfirm.setOnClickListener(v -> {
-            notiView.animate().alpha(0f).setDuration(400).withEndAction(() -> {
-                rootLayout.removeView(notiView);
-            }).start();
+            notiView.animate().alpha(0f).setDuration(400).withEndAction(() -> rootLayout.removeView(notiView)).start();
         });
     }
 
@@ -141,44 +139,29 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
-    private List<String> pendingNotification = new ArrayList<>(Arrays.asList(
-
-    ));
+    private List<String> pendingNotification = new ArrayList<>(Arrays.asList());
     PopupWindow popupWindow;
 
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
-
         TextView tvUserId = modalView.findViewById(R.id.tv_modal_user_id);
-        if (tvUserId != null) {
-            tvUserId.setText(userNickname);
-        }
+        if (tvUserId != null) tvUserId.setText(userNickname);
 
-        // 알림을 담을 부모 레이아웃과 빈 상태 텍스트뷰 가져오기
         LinearLayout layoutNotification = modalView.findViewById(R.id.layout_user_modal);
         LinearLayout tvNoNotification = modalView.findViewById(R.id.layout_no_notification);
 
-        // 2. 알림 리스트 처리 메커니즘
         if (pendingNotification == null || pendingNotification.isEmpty()) {
             tvNoNotification.setVisibility(View.VISIBLE);
         } else {
-            tvNoNotification.setVisibility(View.GONE); // "알림 없음" 숨기기
-
-            // 리스트를 돌면서 동적으로 항목 추가
+            tvNoNotification.setVisibility(View.GONE);
             for (String title : pendingNotification) {
                 View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, null);
-
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
-                String printingtitle;
-                if(title.length()<20)printingtitle=title;
-                else printingtitle=title.substring(0,17)+"...";
-                // 이미지와 동일한 문구 구성
+                String printingtitle = title.length() < 20 ? title : title.substring(0, 17) + "...";
                 tvMessage.setText("누군가가\n\"" + printingtitle + "\" 게시물에 댓글을 남겼습니다.");
-
-                layoutNotification.addView(itemView); // 실제 레이아웃에 추가
+                layoutNotification.addView(itemView);
 
                 View divider;
-                // 항목 간 구분선 추가 (마지막 항목 제외)
                 if (pendingNotification.indexOf(title) != pendingNotification.size() - 1) {
                     divider = new View(this);
                     divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
@@ -187,8 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     divider = null;
                 }
-
-                // 확인 버튼 클릭 이벤트
                 itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
                     layoutNotification.removeView(itemView);
                     if(divider!=null)layoutNotification.removeView(divider);
@@ -197,15 +178,10 @@ public class MainActivity extends AppCompatActivity {
                         tvNoNotification.setVisibility(View.VISIBLE);
                     }
                 });
-
             }
         }
 
-        // PopupWindow 생성 및 표시
-        popupWindow = new PopupWindow(modalView,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                true);
+        popupWindow = new PopupWindow(modalView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setElevation(10f);
         popupWindow.showAsDropDown(anchorView, 0, 10);
     }

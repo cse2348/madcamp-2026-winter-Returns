@@ -1,9 +1,11 @@
 package com.example.returns.gallery;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListPopupWindow;
@@ -51,26 +53,27 @@ public class GalleryFragment extends Fragment {
 
         rv.setAdapter(adapter);
 
-        // 2. DB 데이터 로드
-        loadDataFromDB();
+        // 2. 데이터 초기 로드
+        loadData();
 
         // 3. 검색창 로직
         EditText searchEdit = view.findViewById(R.id.searchEditText);
-        searchEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                currentSearch = s.toString();
+        searchEdit.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+                currentSearch = searchEdit.getText().toString().trim();
                 applyFilters();
+                hideKeyboard(searchEdit);
+                return true;
             }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            return false;
         });
 
-        // 4. 카테고리 드롭다운 버튼 설정
+        // 4. 카테고리 버튼
         btnCategoryDropdown = view.findViewById(R.id.btnCategoryDropdown);
         btnCategoryDropdown.setOnClickListener(v -> showCategoryDropdown(v));
 
-        // 5. 타입 칩 이벤트
+        // 5. 타입 칩 그룹
         ChipGroup typeGroup = view.findViewById(R.id.typeChipGroup);
         typeGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chipTypeAll) currentType = "전체";
@@ -80,17 +83,20 @@ public class GalleryFragment extends Fragment {
         });
     }
 
-    private void showCategoryDropdown(View anchor) {
-        String[] cats = {"전체","휴대폰","노트북", "지갑", "우산",  "가방", "카드", "책",  "기타"};
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
 
+    private void showCategoryDropdown(View anchor) {
+        String[] cats = {"전체","휴대폰","노트북", "지갑", "우산", "가방", "카드", "책", "기타"};
         categoryPopupMenu = new ListPopupWindow(getContext());
         categoryPopupMenu.setAnchorView(anchor);
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.item_dropdown, cats);
         categoryPopupMenu.setAdapter(adapter);
-
         categoryPopupMenu.setWidth(anchor.getWidth() + 100);
-        categoryPopupMenu.setHeight(ListPopupWindow.WRAP_CONTENT);
         categoryPopupMenu.setModal(true);
 
         categoryPopupMenu.setOnItemClickListener((parent, view, position, id) -> {
@@ -102,14 +108,32 @@ public class GalleryFragment extends Fragment {
         categoryPopupMenu.show();
     }
 
-    private void loadDataFromDB() {
-        AppDatabase db = AppDatabase.getInstance(getContext());
-        List<Item> items = db.itemDao().getAllItems();
-        adapter.updateData(items);
+    // 데이터 로드 (MainActivity에서 호출)
+    public void loadData() {
+        new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(getContext());
+            List<Item> items = db.itemDao().getAllItems();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (adapter != null) {
+                        adapter.updateData(items);
+                        applyFilters();
+                    }
+                });
+            }
+        }).start();
     }
+
     private void applyFilters() {
         if (adapter != null) {
+            // GalleryAdapter 내부의 filter 기능을 사용
             adapter.filter(currentSearch, currentType, currentCategory);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadData();
     }
 }

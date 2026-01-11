@@ -31,7 +31,11 @@
                 android:drawableTint="#9CA3AF"
                 android:hint="검색어 입력"
                 android:paddingHorizontal="16dp"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1" />
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 

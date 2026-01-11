@@ -1,9 +1,11 @@
 package com.example.returns.home;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListPopupWindow;
@@ -44,37 +46,35 @@ public class HomeFragment extends Fragment {
 
         itemDao = AppDatabase.getInstance(getContext()).itemDao();
 
-        // 1. 리사이클러뷰 설정
+        // 1. RecyclerView 설정
         RecyclerView rv = view.findViewById(R.id.recyclerView);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 어댑터 생성 및 클릭 리스너 연결
         adapter = new ItemAdapter(filteredList, item -> {
-            // MainActivity의 메서드를 호출하여 상세 페이지(BottomSheet)를 띄움
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).showItemDetail(item);
             }
-        }); // 이 부분의 괄호를 닫아주었습니다.
-
+        });
         rv.setAdapter(adapter);
 
-        // 2. 검색창 로직
+        // 2. 검색창 로직 (엔터 시 필터 적용)
         EditText searchEdit = view.findViewById(R.id.searchEditText);
-        searchEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                currentSearch = (s != null) ? s.toString() : "";
+        searchEdit.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+                currentSearch = searchEdit.getText().toString().trim();
                 applyFilters();
+                hideKeyboard(searchEdit);
+                return true;
             }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            return false;
         });
 
-        // 3. 카테고리 드롭다운
+        // 3. 카테고리 드롭다운 설정
         btnCategoryDropdown = view.findViewById(R.id.btnCategoryDropdown);
         btnCategoryDropdown.setOnClickListener(v -> showCategoryDropdown(v));
 
-        // 4. 타입 (전체/습득/분실)
+        // 4. 타입 필터 (ChipGroup)
         ChipGroup typeGroup = view.findViewById(R.id.typeChipGroup);
         typeGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chipTypeAll) currentType = "전체";
@@ -84,6 +84,13 @@ public class HomeFragment extends Fragment {
         });
 
         loadData();
+    }
+
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void showCategoryDropdown(View anchor) {
@@ -102,15 +109,21 @@ public class HomeFragment extends Fragment {
         popup.show();
     }
 
-    private void loadData() {
-        allItems = itemDao.getAllItems();
-        applyFilters();
+    // 데이터 로드 
+    public void loadData() {
+        new Thread(() -> {
+            if (itemDao != null) {
+                allItems = itemDao.getAllItems();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(this::applyFilters);
+                }
+            }
+        }).start();
     }
 
     private void applyFilters() {
         filteredList.clear();
-
-        String searchKeyword = (currentSearch != null) ? currentSearch.toLowerCase() : "";
+        String searchKeyword = currentSearch.toLowerCase();
 
         for (Item item : allItems) {
             if (item == null) continue;
@@ -122,8 +135,8 @@ public class HomeFragment extends Fragment {
 
             // 2. 타입 필터
             boolean matchesType = "전체".equals(currentType) ||
-                    ("습득".equals(currentType) && "FOUND".equals(item.getType())) ||
-                    ("분실".equals(currentType) && "LOST".equals(item.getType()));
+                    ("습득".equals(currentType) && "FOUND".equalsIgnoreCase(item.getType())) ||
+                    ("분실".equals(currentType) && "LOST".equalsIgnoreCase(item.getType()));
 
             // 3. 카테고리 필터
             boolean matchesCategory = "전체".equals(currentCategory) ||
