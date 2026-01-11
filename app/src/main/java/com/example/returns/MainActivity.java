@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     private String userNickname;
     private RelativeLayout rootLayout;
 
+    private List<String> pendingNotification = new ArrayList<>(Arrays.asList());//아직 확인 안 한 알림 목록
+    PopupWindow popupWindow_noti; //알림창
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,9 +93,15 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
+        popupWindow_noti=new PopupWindow(null, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT,true);
+        popupWindow_noti.setElevation(10f);
+
         ImageView btnUser = findViewById(R.id.btn_user);
         if (btnUser != null) {
-            btnUser.setOnClickListener(v -> showUserModal(v));
+            btnUser.setOnClickListener(v -> {
+                if(popupWindow_noti.isShowing())popupWindow_noti.dismiss();
+                else showUserModal(v);
+            });
         }
     }
 
@@ -123,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         notiView.setLayoutParams(params);
         notiView.setElevation(20f);
         rootLayout.addView(notiView);
-        popupWindow.dismiss();
+        if(popupWindow_noti.isShowing())popupWindow_noti.dismiss();
 
         // 애니메이션 효과
         notiView.setAlpha(0f);
@@ -138,9 +147,6 @@ public class MainActivity extends AppCompatActivity {
         ItemDetailFragment detailFragment = ItemDetailFragment.newInstance(item);
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
-
-    private List<String> pendingNotification = new ArrayList<>(Arrays.asList());//아직 확인 안 한 알림 목록
-    PopupWindow popupWindow; //알림창
 
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
@@ -181,14 +187,15 @@ public class MainActivity extends AppCompatActivity {
                 };
 
                 itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {erase_noti_elem.run();});
+                itemView.findViewById(R.id.layout_item_notification).setOnClickListener(v -> {
+                    pendingNotification.remove(title);
+                });
+
             }
         }
 
-
-
-        popupWindow = new PopupWindow(modalView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setElevation(10f);
-        popupWindow.showAsDropDown(anchorView, 0, 10);
+        popupWindow_noti.setContentView(modalView);
+        popupWindow_noti.showAsDropDown(anchorView, 0, 10);
     }
 
 }
