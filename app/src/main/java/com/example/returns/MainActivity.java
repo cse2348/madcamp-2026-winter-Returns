@@ -33,11 +33,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.List;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private String userNickname;
     private RelativeLayout rootLayout;
+
+    private List<String> pendingNotification = new ArrayList<>(Arrays.asList());//아직 확인 안 한 알림 목록
+    PopupWindow popupWindow_noti; //알림창
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,9 +93,15 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
+        popupWindow_noti=new PopupWindow(null, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT,true);
+        popupWindow_noti.setElevation(10f);
+
         ImageView btnUser = findViewById(R.id.btn_user);
         if (btnUser != null) {
-            btnUser.setOnClickListener(v -> showUserModal(v));
+            btnUser.setOnClickListener(v -> {
+                if(popupWindow_noti.isShowing())popupWindow_noti.dismiss();
+                else showUserModal(v);
+            });
         }
     }
 
@@ -115,12 +125,16 @@ public class MainActivity extends AppCompatActivity {
         tvMessage.setText(String.format("%s님이 \"%s\" 게시물에 댓글을 남겼습니다.", commenterName, itemTitle));
         tvTime.setText(new SimpleDateFormat("yyyy. M. d. a h:mm:ss", Locale.KOREA).format(new Date()));
 
+        pendingNotification.add(itemTitle);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         params.topMargin = 50; params.leftMargin = 30; params.rightMargin = 30;
         notiView.setLayoutParams(params);
         notiView.setElevation(20f);
         rootLayout.addView(notiView);
+        if(popupWindow_noti.isShowing())popupWindow_noti.dismiss();
+
+        // 애니메이션 효과
         notiView.setAlpha(0f);
         notiView.animate().alpha(1f).setDuration(500).start();
 
@@ -134,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
-    private List<String> dummyNotification = Arrays.asList("투명 비닐우산 분실", "파란색 지갑 발견", "아이폰 15 프로 분실");
-
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
         TextView tvUserId = modalView.findViewById(R.id.tv_modal_user_id);
@@ -144,27 +156,46 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout layoutNotification = modalView.findViewById(R.id.layout_user_modal);
         LinearLayout tvNoNotification = modalView.findViewById(R.id.layout_no_notification);
 
-        if (dummyNotification == null || dummyNotification.isEmpty()) {
+        if (pendingNotification == null || pendingNotification.isEmpty()) {
             tvNoNotification.setVisibility(View.VISIBLE);
         } else {
             tvNoNotification.setVisibility(View.GONE);
-            for (String title : dummyNotification) {
+            for (String title : pendingNotification) {
                 View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, null);
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
-                String printingtitle = title.length() < 20 ? title : title.substring(0, 17) + "...";
-                tvMessage.setText("누군가가\n\"" + printingtitle + "\" 게시물에 댓글을 남겼습니다.");
+                String printing_title = title.length() < 20 ? title : title.substring(0, 17) + "...";
+                tvMessage.setText("누군가가\n\"" + printing_title + "\" 게시물에 댓글을 남겼습니다.");
                 layoutNotification.addView(itemView);
-                if (dummyNotification.indexOf(title) != dummyNotification.size() - 1) {
-                    View divider = new View(this);
+
+                View divider;
+                if (pendingNotification.indexOf(title) != pendingNotification.size() - 1) {
+                    divider = new View(this);
                     divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
                     divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
                     layoutNotification.addView(divider);
+                } else {
+                    divider = null;
                 }
+
+                Runnable erase_noti_elem = () -> {
+                    layoutNotification.removeView(itemView);
+                    if (divider != null) layoutNotification.removeView(divider);
+                    pendingNotification.remove(title);
+                    if (pendingNotification.isEmpty()) {
+                        tvNoNotification.setVisibility(View.VISIBLE);
+                    }
+                };
+
+                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {erase_noti_elem.run();});
+                itemView.findViewById(R.id.layout_item_notification).setOnClickListener(v -> {
+                    pendingNotification.remove(title);
+                });
+
             }
         }
 
-        PopupWindow popupWindow = new PopupWindow(modalView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setElevation(10f);
-        popupWindow.showAsDropDown(anchorView, 0, 10);
+        popupWindow_noti.setContentView(modalView);
+        popupWindow_noti.showAsDropDown(anchorView, 0, 10);
     }
+
 }
