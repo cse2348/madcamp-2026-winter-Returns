@@ -139,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
         detailFragment.show(getSupportFragmentManager(), detailFragment.getTag());
     }
 
-    private List<String> pendingNotification = new ArrayList<>(Arrays.asList());
-    PopupWindow popupWindow;
+    private List<String> pendingNotification = new ArrayList<>(Arrays.asList());//아직 확인 안 한 알림 목록
+    PopupWindow popupWindow; //알림창
 
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
@@ -157,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
             for (String title : pendingNotification) {
                 View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, null);
                 TextView tvMessage = itemView.findViewById(R.id.tv_noti_message);
-                String printingtitle = title.length() < 20 ? title : title.substring(0, 17) + "...";
-                tvMessage.setText("누군가가\n\"" + printingtitle + "\" 게시물에 댓글을 남겼습니다.");
+                String printing_title = title.length() < 20 ? title : title.substring(0, 17) + "...";
+                tvMessage.setText("누군가가\n\"" + printing_title + "\" 게시물에 댓글을 남겼습니다.");
                 layoutNotification.addView(itemView);
 
                 View divider;
@@ -170,19 +170,25 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     divider = null;
                 }
-                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
+
+                Runnable erase_noti_elem = () -> {
                     layoutNotification.removeView(itemView);
-                    if(divider!=null)layoutNotification.removeView(divider);
+                    if (divider != null) layoutNotification.removeView(divider);
                     pendingNotification.remove(title);
-                    if(pendingNotification.isEmpty()){
+                    if (pendingNotification.isEmpty()) {
                         tvNoNotification.setVisibility(View.VISIBLE);
                     }
-                });
+                };
+
+                itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {erase_noti_elem.run();});
             }
         }
+
+
 
         popupWindow = new PopupWindow(modalView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setElevation(10f);
         popupWindow.showAsDropDown(anchorView, 0, 10);
     }
+
 }
