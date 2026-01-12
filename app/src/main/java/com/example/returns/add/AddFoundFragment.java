@@ -52,7 +52,6 @@ public class AddFoundFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. 수정 모드인지 확인
         if (getArguments() != null) {
             editItem = (Item) getArguments().getSerializable("edit_item");
         }
@@ -68,22 +67,21 @@ public class AddFoundFragment extends Fragment {
         Button btnSubmit = view.findViewById(R.id.btn_submit);
         TextView tvHeader = view.findViewById(R.id.tv_add_title);
 
-        // 상태 변경 관련 뷰 참조
         LinearLayout layoutStatusEdit = view.findViewById(R.id.layout_status_edit);
         RadioGroup rgStatus = view.findViewById(R.id.rg_status);
 
-        // 2. 수정 모드일 경우 기존 데이터 채우기
         if (editItem != null) {
             if (tvHeader != null) tvHeader.setText("게시글 수정");
             etTitle.setText(editItem.getTitle());
             etLocation.setText(editItem.getLocation());
             etTime.setText(editItem.getDateOccurred());
             etStorage.setText(editItem.getHandledBy());
-            etFeatures.setText(editItem.getNotes().split("\n방법:",2)[0].substring(3));
-            etHowToFind.setText(editItem.getNotes().split("\n방법:",2)[1]);
+
+            etFeatures.setText(editItem.getNotes());
+            etHowToFind.setText(editItem.getContactName());
+
             btnSubmit.setText("수정 완료");
 
-            // 수정 모드일 때만 상태 변경 레이아웃 보이기
             if (layoutStatusEdit != null) {
                 layoutStatusEdit.setVisibility(View.VISIBLE);
                 if ("찾아감".equals(editItem.getStatus())) {
@@ -99,7 +97,6 @@ public class AddFoundFragment extends Fragment {
             }
         }
 
-        // 갤러리 실행기
         ActivityResultLauncher<String> galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -120,7 +117,6 @@ public class AddFoundFragment extends Fragment {
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        // 3. 등록/수정 버튼 클릭
         btnSubmit.setOnClickListener(v -> {
             String title = etTitle.getText().toString().trim();
             if (title.isEmpty()) {
@@ -136,17 +132,16 @@ public class AddFoundFragment extends Fragment {
             item.setLocation(etLocation.getText().toString());
             item.setDateOccurred(etTime.getText().toString());
             item.setHandledBy(etStorage.getText().toString());
+
+            item.setNotes(etFeatures.getText().toString());
+            item.setContactName(etHowToFind.getText().toString());
+
             item.setAuthorNickname(currentNickname);
             item.setType("FOUND");
 
-
             if (editItem != null) {
                 int checkedId = rgStatus.getCheckedRadioButtonId();
-                if (checkedId == R.id.rb_status_resolved) {
-                    item.setStatus("찾아감");
-                } else {
-                    item.setStatus("보관중");
-                }
+                item.setStatus(checkedId == R.id.rb_status_resolved ? "찾아감" : "보관중");
             } else {
                 item.setStatus("보관중");
             }
@@ -155,7 +150,6 @@ public class AddFoundFragment extends Fragment {
                 item.setImageUriString(selectedImageUri.toString());
             }
 
-            // 카테고리 설정
             int checkedChipId = chipGroup.getCheckedChipId();
             if (checkedChipId != View.NO_ID) {
                 Chip chip = view.findViewById(checkedChipId);

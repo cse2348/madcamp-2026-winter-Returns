@@ -36,7 +36,6 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     private Item item;
     private TextView badgeType, badgeCategory, badgeStatus;
     private TextView tvTitle, tvLocation, tvDate, tvFeatureContent, tvCommentHeader;
-    // 습득물 전용 뷰 추가
     private LinearLayout layoutFoundSpecific;
     private TextView tvHandledByContent, tvContactContent;
 
