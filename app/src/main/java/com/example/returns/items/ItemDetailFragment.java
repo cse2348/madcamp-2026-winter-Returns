@@ -108,11 +108,15 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                             addCommentUI(myNickname, commentText, currentTime);
                             etCommentInput.setText("");
 
-                            // 알림 로직
+                            // ✅ 알림 로직 수정: 조건문을 제거하고 MainActivity에 작성자 정보를 넘깁니다.
                             if (getActivity() instanceof MainActivity) {
-                                if (item.getAuthorNickname() != null && item.getAuthorNickname().equals(myNickname)) {
-                                    ((MainActivity) getActivity()).handleCommentAdded(item.getId(), item.getTitle(), myNickname);
-                                }
+                                // 4개의 인자 전달: 아이템ID, 제목, 댓글작성자(나), 게시글작성자
+                                ((MainActivity) getActivity()).handleCommentAdded(
+                                        item.getId(),
+                                        item.getTitle(),
+                                        myNickname,
+                                        item.getAuthorNickname()
+                                );
                             }
                         });
                     }
@@ -197,7 +201,6 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         }
     }
 
-    // DB에서 댓글 목록을 가져오는 메서드
     private void loadCommentsFromDB() {
         new Thread(() -> {
             List<Comment> comments = AppDatabase.getInstance(requireContext()).commentDao().getCommentsForItem(item.getId());
@@ -214,7 +217,6 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         }).start();
     }
 
-    // UI에 댓글 뷰를 추가하는 메서드
     private void addCommentUI(String name, String message, String date) {
         View commentView = getLayoutInflater().inflate(R.layout.item_comment, layoutCommentsList, false);
         ((TextView) commentView.findViewById(R.id.tvCommentName)).setText(name);

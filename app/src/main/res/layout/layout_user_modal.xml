@@ -4,8 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_modal_card"
     android:elevation="8dp"
-    android:orientation="vertical"
-    android:id="@+id/layout_user_modal">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,23 +36,36 @@
         android:layout_height="1dp"
         android:background="#F1F5F9" />
 
-    <LinearLayout
-        android:id="@+id/layout_no_notification"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="100dp"
-        android:padding="20dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:orientation="vertical">
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        android:maxHeight="400dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/noti_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="새로운 알림이 없습니다."
-            android:textColor="#64748B"
-            android:textSize="15sp" />
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/layout_no_notification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="100dp"
+                android:padding="20dp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="새로운 알림이 없습니다."
+                    android:textColor="#64748B"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
