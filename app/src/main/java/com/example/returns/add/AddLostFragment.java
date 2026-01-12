@@ -9,8 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout; // 추가
-import android.widget.RadioGroup;    // 추가
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,8 +23,10 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
+import com.example.returns.MainActivity; // 추가
 import com.example.returns.R;
 import com.example.returns.home.HomeFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView; // 추가
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -160,9 +162,13 @@ public class AddLostFragment extends Fragment {
                     }
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(getContext(), editItem != null ? "수정되었습니다." : "등록되었습니다.", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().beginTransaction()
-                                .replace(R.id.container, new HomeFragment())
-                                .commit();
+
+                        if (getActivity() instanceof MainActivity) {
+                            BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                            if (bottomNav != null) {
+                                bottomNav.setSelectedItemId(R.id.nav_home);
+                            }
+                        }
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
