@@ -23,12 +23,14 @@ import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
+import com.example.returns.DB.Comment;
 import com.example.returns.add.AddFoundFragment;
 import com.example.returns.add.AddLostFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class ItemDetailFragment extends BottomSheetDialogFragment {
@@ -77,6 +79,7 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         if (item != null) {
             displayItemData();
             checkOwnership();
+            loadCommentsFromDB();
         }
 
         // 댓글 전송 로직
@@ -84,17 +87,36 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
             SharedPreferences pref = requireContext().getSharedPreferences("UserToken", Context.MODE_PRIVATE);
             String myNickname = pref.getString("nickName", "익명");
             String commentText = etCommentInput.getText().toString().trim();
+
             if (!commentText.isEmpty()) {
-                addCommentUI(myNickname, commentText);
-                etCommentInput.setText("");
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).handleCommentAdded(item.getId(), item.getTitle(), myNickname);
-                }
-            }
-            if (getActivity() instanceof MainActivity) {
-                if (item.getAuthorNickname() != null && item.getAuthorNickname().equals(myNickname)) {
-                    ((MainActivity) getActivity()).handleCommentAdded(item.getId(), item.getTitle(), myNickname);
-                }
+                String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA).format(new Date());
+
+                // 1. DB에 저장할 댓글 객체 생성
+                Comment newComment = new Comment();
+                newComment.itemId = item.getId();
+                newComment.authorName = myNickname;
+                newComment.message = commentText;
+                newComment.timestamp = currentTime;
+
+                // 2. DB 저장 (비동기 처리)
+                new Thread(() -> {
+                    AppDatabase.getInstance(requireContext()).commentDao().insert(newComment);
+
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            // UI 업데이트
+                            addCommentUI(myNickname, commentText, currentTime);
+                            etCommentInput.setText("");
+
+                            // 알림 로직
+                            if (getActivity() instanceof MainActivity) {
+                                if (item.getAuthorNickname() != null && item.getAuthorNickname().equals(myNickname)) {
+                                    ((MainActivity) getActivity()).handleCommentAdded(item.getId(), item.getTitle(), myNickname);
+                                }
+                            }
+                        });
+                    }
+                }).start();
             }
         });
 
@@ -175,11 +197,29 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private void addCommentUI(String name, String message) {
+    // DB에서 댓글 목록을 가져오는 메서드
+    private void loadCommentsFromDB() {
+        new Thread(() -> {
+            List<Comment> comments = AppDatabase.getInstance(requireContext()).commentDao().getCommentsForItem(item.getId());
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    layoutCommentsList.removeAllViews();
+                    commentCount = 0;
+                    for (Comment c : comments) {
+                        addCommentUI(c.authorName, c.message, c.timestamp);
+                    }
+                    tvCommentHeader.setText("댓글 (" + commentCount + ")");
+                });
+            }
+        }).start();
+    }
+
+    // UI에 댓글 뷰를 추가하는 메서드
+    private void addCommentUI(String name, String message, String date) {
         View commentView = getLayoutInflater().inflate(R.layout.item_comment, layoutCommentsList, false);
         ((TextView) commentView.findViewById(R.id.tvCommentName)).setText(name);
         ((TextView) commentView.findViewById(R.id.tvCommentMessage)).setText(message);
-        ((TextView) commentView.findViewById(R.id.tvCommentDate)).setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA).format(new Date()));
+        ((TextView) commentView.findViewById(R.id.tvCommentDate)).setText(date);
         layoutCommentsList.addView(commentView);
         commentCount++;
         tvCommentHeader.setText("댓글 (" + commentCount + ")");
