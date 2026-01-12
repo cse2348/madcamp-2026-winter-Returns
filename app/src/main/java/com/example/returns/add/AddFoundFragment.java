@@ -73,7 +73,8 @@ public class AddFoundFragment extends Fragment {
             etLocation.setText(editItem.getLocation());
             etTime.setText(editItem.getDateOccurred());
             etStorage.setText(editItem.getHandledBy());
-            etFeatures.setText(editItem.getNotes());
+            etFeatures.setText(editItem.getNotes().split("\n방법:",2)[0].substring(3));
+            etHowToFind.setText(editItem.getNotes().split("\n방법:",2)[1]);
             btnSubmit.setText("수정 완료");
 
             if (editItem.getImageUriString() != null) {
