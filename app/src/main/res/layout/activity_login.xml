@@ -39,14 +39,15 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="visible"
+            android:layout_marginBottom="30dp">
 
             <ImageView
                 android:layout_width="240dp"
                 android:layout_height="240dp"
                 android:src="@drawable/logo_mascot"
                 android:scaleType="centerInside"
-                android:layout_marginBottom="32dp"/>
+                android:layout_marginBottom="0dp"/>
 
             <Button
                 android:id="@+id/btnStart"
