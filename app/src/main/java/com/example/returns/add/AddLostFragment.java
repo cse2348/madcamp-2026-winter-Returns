@@ -159,7 +159,7 @@ public class AddLostFragment extends Fragment {
                         AppDatabase.getInstance(getContext()).itemDao().insert(item);
                     }
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), editItem != null ? "수정 완료!" : "등록 완료!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), editItem != null ? "수정되었습니다." : "등록되었습니다.", Toast.LENGTH_SHORT).show();
                         getParentFragmentManager().beginTransaction()
                                 .replace(R.id.container, new HomeFragment())
                                 .commit();
