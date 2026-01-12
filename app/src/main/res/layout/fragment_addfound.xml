@@ -154,6 +154,56 @@
             android:padding="10dp"
             android:layout_marginBottom="24dp"/>
 
+        <LinearLayout
+            android:id="@+id/layout_status_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="현재 상태"
+                android:textStyle="bold"
+                android:textColor="#1E293B"
+                android:layout_marginBottom="8dp"/>
+
+            <RadioGroup
+                android:id="@+id/rg_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_rounded_input"
+                android:padding="4dp">
+
+                <RadioButton
+                    android:id="@+id/rb_status_unresolved"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="보관중"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:background="@drawable/selector_chip_bg"
+                    android:textColor="#FF64748B" />
+
+                <RadioButton
+                    android:id="@+id/rb_status_resolved"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="찾아감"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:background="@drawable/selector_chip_bg"
+                    android:textColor="#FF64748B" />
+            </RadioGroup>
+        </LinearLayout>
+
         <Button
             android:id="@+id/btn_submit"
             android:layout_width="match_parent"

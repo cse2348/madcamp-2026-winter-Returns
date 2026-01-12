@@ -211,6 +211,6 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                 .into(ivItemImage);
 
         String status = item.getStatus();
-        badgeStatus.setText(status != null ? status : "미해결");
+        badgeStatus.setText(status != null ? status : "미발견");
     }
 }

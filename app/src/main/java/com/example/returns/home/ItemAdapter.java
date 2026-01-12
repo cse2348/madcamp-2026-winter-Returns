@@ -59,11 +59,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         holder.txtStatusBadge.setText(status);
 
         if ("찾아감".equals(status) || "해결".equals(status)) {
-            // 해결 상태: 흰색 배경
-            holder.txtStatusBadge.getBackground().setTint(Color.WHITE);
-            holder.txtStatusBadge.setTextColor(Color.BLACK);
+            holder.txtStatusBadge.getBackground().setTint(Color.parseColor("#F3F4F6"));
+            holder.txtStatusBadge.setTextColor(Color.parseColor("#6B7280"));
         } else {
-            // 미해결, 보관중: 연한 회색 배경
             holder.txtStatusBadge.getBackground().setTint(Color.parseColor("#E5E7EB"));
             holder.txtStatusBadge.setTextColor(Color.parseColor("#6B7280"));
         }
@@ -99,7 +97,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             txtCategoryBadge = itemView.findViewById(R.id.txt_category_badge);
             txtItemTitle = itemView.findViewById(R.id.txt_item_title);
             txtItemLocation = itemView.findViewById(R.id.txt_item_location);
-            // 상태 배지를 위한 ID (item_card.xml에 해당 ID의 TextView가 있어야 합니다)
             txtStatusBadge = itemView.findViewById(R.id.txt_status_badge);
         }
     }
