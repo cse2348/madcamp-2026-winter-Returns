@@ -45,7 +45,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         holder.txtItemLocation.setText(item.getLocation());
         holder.txtCategoryBadge.setText(item.getCategory());
 
-        // 2. 타입 배지 설정
+        // 2. 타입 배지 설정 (습득/분실)
         if ("FOUND".equals(item.getType())) {
             holder.txtTypeBadge.setText("습득");
             holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#1E3A8A"));
@@ -54,14 +54,26 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.txtTypeBadge.getBackground().setTint(Color.parseColor("#EF4444"));
         }
 
-        //  3. 이미지 로딩 로직 추가
+        // 3. 상태 배지 설정 (미해결, 보관중 / 찾아감, 해결)
+        String status = item.getStatus();
+        holder.txtStatusBadge.setText(status);
+
+        if ("찾아감".equals(status) || "해결".equals(status)) {
+            holder.txtStatusBadge.getBackground().setTint(Color.parseColor("#F3F4F6"));
+            holder.txtStatusBadge.setTextColor(Color.parseColor("#6B7280"));
+        } else {
+            holder.txtStatusBadge.getBackground().setTint(Color.parseColor("#E5E7EB"));
+            holder.txtStatusBadge.setTextColor(Color.parseColor("#6B7280"));
+        }
+
+        // 4. 이미지 로딩 로직
         Glide.with(holder.itemView.getContext())
                 .load(item.getImageUriString())
                 .placeholder(R.drawable.ic_placeholder)
                 .error(R.drawable.ic_placeholder)
                 .into(holder.imgItem);
 
-        // 4. 아이템 클릭 리스너 연결
+        // 5. 아이템 클릭 리스너 연결
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(item);
@@ -76,7 +88,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imgItem;
-        TextView txtTypeBadge, txtCategoryBadge, txtItemTitle, txtItemLocation;
+        TextView txtTypeBadge, txtCategoryBadge, txtItemTitle, txtItemLocation, txtStatusBadge;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -85,6 +97,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             txtCategoryBadge = itemView.findViewById(R.id.txt_category_badge);
             txtItemTitle = itemView.findViewById(R.id.txt_item_title);
             txtItemLocation = itemView.findViewById(R.id.txt_item_location);
+            txtStatusBadge = itemView.findViewById(R.id.txt_status_badge);
         }
     }
 }

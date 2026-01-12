@@ -74,7 +74,7 @@ public class HomeFragment extends Fragment {
         btnCategoryDropdown = view.findViewById(R.id.btnCategoryDropdown);
         btnCategoryDropdown.setOnClickListener(v -> showCategoryDropdown(v));
 
-        // 4. 타입 필터 (ChipGroup)
+        // 4. 타입 필터
         ChipGroup typeGroup = view.findViewById(R.id.typeChipGroup);
         typeGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chipTypeAll) currentType = "전체";
@@ -123,7 +123,7 @@ public class HomeFragment extends Fragment {
 
     private void applyFilters() {
         filteredList.clear();
-        String searchKeyword = currentSearch.toLowerCase();
+        String searchKeyword = (currentSearch != null) ? currentSearch.toLowerCase() : "";
 
         for (Item item : allItems) {
             if (item == null) continue;

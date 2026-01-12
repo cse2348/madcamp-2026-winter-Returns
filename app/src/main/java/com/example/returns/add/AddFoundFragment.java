@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +52,6 @@ public class AddFoundFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. 수정 모드인지 확인
         if (getArguments() != null) {
             editItem = (Item) getArguments().getSerializable("edit_item");
         }
@@ -66,16 +67,29 @@ public class AddFoundFragment extends Fragment {
         Button btnSubmit = view.findViewById(R.id.btn_submit);
         TextView tvHeader = view.findViewById(R.id.tv_add_title);
 
-        // 2. 수정 모드일 경우 기존 데이터 채우기
+        LinearLayout layoutStatusEdit = view.findViewById(R.id.layout_status_edit);
+        RadioGroup rgStatus = view.findViewById(R.id.rg_status);
+
         if (editItem != null) {
             if (tvHeader != null) tvHeader.setText("게시글 수정");
             etTitle.setText(editItem.getTitle());
             etLocation.setText(editItem.getLocation());
             etTime.setText(editItem.getDateOccurred());
             etStorage.setText(editItem.getHandledBy());
-            etFeatures.setText(editItem.getNotes().split("\n방법:",2)[0].substring(3));
-            etHowToFind.setText(editItem.getNotes().split("\n방법:",2)[1]);
+
+            etFeatures.setText(editItem.getNotes());
+            etHowToFind.setText(editItem.getContactName());
+
             btnSubmit.setText("수정 완료");
+
+            if (layoutStatusEdit != null) {
+                layoutStatusEdit.setVisibility(View.VISIBLE);
+                if ("찾아감".equals(editItem.getStatus())) {
+                    rgStatus.check(R.id.rb_status_resolved);
+                } else {
+                    rgStatus.check(R.id.rb_status_unresolved);
+                }
+            }
 
             if (editItem.getImageUriString() != null) {
                 selectedImageUri = Uri.parse(editItem.getImageUriString());
@@ -83,7 +97,6 @@ public class AddFoundFragment extends Fragment {
             }
         }
 
-        // 갤러리 실행기
         ActivityResultLauncher<String> galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -104,7 +117,6 @@ public class AddFoundFragment extends Fragment {
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        // 3. 등록/수정 버튼 클릭
         btnSubmit.setOnClickListener(v -> {
             String title = etTitle.getText().toString().trim();
             if (title.isEmpty()) {
@@ -120,16 +132,24 @@ public class AddFoundFragment extends Fragment {
             item.setLocation(etLocation.getText().toString());
             item.setDateOccurred(etTime.getText().toString());
             item.setHandledBy(etStorage.getText().toString());
+
+            item.setNotes(etFeatures.getText().toString());
+            item.setContactName(etHowToFind.getText().toString());
+
             item.setAuthorNickname(currentNickname);
-            item.setNotes("특징: " + etFeatures.getText().toString() + "\n방법: " + etHowToFind.getText().toString());
             item.setType("FOUND");
-            item.setStatus("보관중");
+
+            if (editItem != null) {
+                int checkedId = rgStatus.getCheckedRadioButtonId();
+                item.setStatus(checkedId == R.id.rb_status_resolved ? "찾아감" : "보관중");
+            } else {
+                item.setStatus("보관중");
+            }
 
             if (selectedImageUri != null) {
                 item.setImageUriString(selectedImageUri.toString());
             }
 
-            // 카테고리 설정
             int checkedChipId = chipGroup.getCheckedChipId();
             if (checkedChipId != View.NO_ID) {
                 Chip chip = view.findViewById(checkedChipId);
@@ -139,9 +159,9 @@ public class AddFoundFragment extends Fragment {
             new Thread(() -> {
                 try {
                     if (editItem != null) {
-                        AppDatabase.getInstance(getContext()).itemDao().update(item); // 수정
+                        AppDatabase.getInstance(getContext()).itemDao().update(item);
                     } else {
-                        AppDatabase.getInstance(getContext()).itemDao().insert(item); // 신규 등록
+                        AppDatabase.getInstance(getContext()).itemDao().insert(item);
                     }
 
                     requireActivity().runOnUiThread(() -> {

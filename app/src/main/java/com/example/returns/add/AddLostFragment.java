@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout; // 추가
+import android.widget.RadioGroup;    // 추가
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +40,6 @@ public class AddLostFragment extends Fragment {
         super(R.layout.fragment_addlost);
     }
 
-
     public static AddLostFragment newInstance(Item item) {
         AddLostFragment fragment = new AddLostFragment();
         Bundle args = new Bundle();
@@ -64,6 +65,10 @@ public class AddLostFragment extends Fragment {
         Button btnSubmit = view.findViewById(R.id.btn_submit);
         TextView tvHeader = view.findViewById(R.id.tv_add_title);
 
+
+        LinearLayout layoutStatusEdit = view.findViewById(R.id.layout_status_edit);
+        RadioGroup rgStatus = view.findViewById(R.id.rg_status);
+
         if (editItem != null) {
             if (tvHeader != null) tvHeader.setText("분실물 수정");
             etTitle.setText(editItem.getTitle());
@@ -71,6 +76,16 @@ public class AddLostFragment extends Fragment {
             etTime.setText(editItem.getDateOccurred());
             etFeatures.setText(editItem.getNotes());
             btnSubmit.setText("수정 완료");
+
+            // 수정 모드일 때만 상태 선택창 표시
+            if (layoutStatusEdit != null) {
+                layoutStatusEdit.setVisibility(View.VISIBLE);
+                if ("발견".equals(editItem.getStatus())) {
+                    rgStatus.check(R.id.rb_status_resolved);
+                } else {
+                    rgStatus.check(R.id.rb_status_unresolved);
+                }
+            }
 
             if (editItem.getImageUriString() != null) {
                 selectedImageUri = Uri.parse(editItem.getImageUriString());
@@ -117,7 +132,14 @@ public class AddLostFragment extends Fragment {
             item.setNotes(etFeatures.getText().toString());
             item.setAuthorNickname(currentNickname);
             item.setType("LOST");
-            item.setStatus("미발견");
+
+            // 상태 결정 로직
+            if (editItem != null) {
+                int checkedId = rgStatus.getCheckedRadioButtonId();
+                item.setStatus(checkedId == R.id.rb_status_resolved ? "발견" : "미발견");
+            } else {
+                item.setStatus("미발견");
+            }
 
             if (selectedImageUri != null) {
                 item.setImageUriString(selectedImageUri.toString());
