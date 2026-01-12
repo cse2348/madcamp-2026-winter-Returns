@@ -87,8 +87,10 @@ NOTI_DB --> POPUP[본인글에 댓글시 실시간 상단 팝업 노출]
 D -- 사람 아이콘 클릭 --> MODAL[알림 목록 모달]
 MODAL -- [확인] 클릭 --> DELETE[DB 삭제 및 모달 새로고침]
 DELETE --> MODAL
-
 MODAL -- 알림 내용 클릭 --> DETAIL_FROM_NOTI[모달 닫고 상세 화면 이동]
 DETAIL_FROM_NOTI --> DETAIL
 
 ```
+
+## APK 다운로드
+[다운로드](https://github.com/cse2348/madcamp-2026-winter-Returns/raw/refs/heads/master/Returns.apk)
