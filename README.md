@@ -1,19 +1,19 @@
-# 리턴즈 (Returns)
+# 🔄 리턴즈 (Returns)
 > 휴대폰 속 간편한 분실물 센터 앱
 
 <img src="img/Returns_logo_inapp.png" width="20%" style="margin-top: -20px; margin-bottom: -20px;">
 
-## 프로젝트 개요
+## 📌 프로젝트 개요
 
 - **목표:** 누구나 쉽게 분실물을 등록하고, 습득물을 찾아갈 수 있는 직관적인 모바일 환경 제공.
 - **핵심 가치:** "거래"가 아닌 "제자리로의 반환"에 집중. 상태 기반의 명확한 프로세스 제공.
 - **주요 특징:** 닉네임 기반 간편 인증, 직관적인 UI/UX, 이미지 중심의 갤러리, 습득물 주인 인증 기능.
 
-## 팀원 소개
+## 🧑‍💻 팀원 소개
 
     
 
-## 주요 기능
+## 🚀 주요 기능
 
 ### 1. 간편 접근 및 본인 인증 (Tab 0)
 <img src="img/Returns_Show_view0.gif" width = "20%">
@@ -52,7 +52,7 @@
 - **분실물 등록 (Tab 4):** 잃어버린 장소, 연락처 등 분실에 특화된 폼 제공.
 - **실시간 반영:** 등록 즉시 메인 리스트에 데이터 반영.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **OS:** Android (Min SDK 26+)
 - **Language:** Java
@@ -60,7 +60,7 @@
 - **UI:** Jetpack Compose
 - **Navigation:** Jetpack Navigation Component (BottomNavigationView 연동)
 
-## UX Flow
+## 🗺️ UX Flow
 ```java
 graph TD
 A[앱 실행] --> B[닉네임 로그인] --> C[메인 화면 - Bottom Nav]
