@@ -91,6 +91,11 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                     ((MainActivity) getActivity()).handleCommentAdded(item.getId(), item.getTitle(), myNickname);
                 }
             }
+            if (getActivity() instanceof MainActivity) {
+                if (item.getAuthorNickname() != null && item.getAuthorNickname().equals(myNickname)) {
+                    ((MainActivity) getActivity()).handleCommentAdded(item.getId(), item.getTitle(), myNickname);
+                }
+            }
         });
 
         // 삭제 로직
