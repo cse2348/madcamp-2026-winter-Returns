@@ -70,9 +70,22 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="특징" android:textStyle="bold" android:layout_marginTop="24dp" android:layout_marginBottom="12dp" android:textColor="#333333"/>
-            <TextView android:id="@+id/tvFeatureContent" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_muted_rounded_12" android:padding="16dp" android:text="특징 내용이 들어갑니다." android:textSize="15sp" android:textColor="#333333" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="상세 특징" android:textStyle="bold" android:layout_marginTop="24dp" android:layout_marginBottom="12dp" android:textColor="#333333"/>
+            <TextView android:id="@+id/tvFeatureContent" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_muted_rounded_12" android:padding="16dp" android:text="예: 빨간색 스티커가 붙어있음" android:textSize="15sp" android:textColor="#333333" />
 
+            <LinearLayout
+                android:id="@+id/layoutFoundSpecific"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="현재 보관 장소" android:textStyle="bold" android:layout_marginTop="20dp" android:layout_marginBottom="12dp" android:textColor="#333333"/>
+                <TextView android:id="@+id/tvHandledByContent" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_muted_rounded_12" android:padding="16dp" android:text="예: 본관 경비실" android:textSize="15sp" android:textColor="#333333" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="찾는 방법" android:textStyle="bold" android:layout_marginTop="20dp" android:layout_marginBottom="12dp" android:textColor="#333333"/>
+                <TextView android:id="@+id/tvContactContent" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_muted_rounded_12" android:padding="16dp" android:text="예: 신분증 지참 후 방문 수령" android:textSize="15sp" android:textColor="#333333" />
+            </LinearLayout>
             <LinearLayout
                 android:id="@+id/layoutOwnerButtons"
                 android:layout_width="match_parent"
@@ -111,51 +124,15 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="20dp"
                 android:gravity="center_vertical">
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_comment"
-                    app:tint="#333333" />
-                <TextView
-                    android:id="@+id/tvCommentHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="댓글 (0)"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:textColor="#333333"/>
+                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_comment" app:tint="#333333" />
+                <TextView android:id="@+id/tvCommentHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="댓글 (0)" android:textStyle="bold" android:layout_marginStart="8dp" android:textColor="#333333"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/layoutCommentsList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="12dp" />
+            <LinearLayout android:id="@+id/layoutCommentsList" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical">
-                <EditText
-                    android:id="@+id/etCommentInput"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="댓글을 입력하세요"
-                    android:background="@drawable/bg_muted_rounded_12"
-                    android:padding="12dp"
-                    android:textSize="14sp" />
-                <ImageButton
-                    android:id="@+id/btnSendComment"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/ic_send"
-                    android:background="@drawable/bg_badge_primary"
-                    app:tint="#FFFFFF" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="16dp" android:gravity="center_vertical">
+                <EditText android:id="@+id/etCommentInput" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="댓글을 입력하세요" android:background="@drawable/bg_muted_rounded_12" android:padding="12dp" android:textSize="14sp" />
+                <ImageButton android:id="@+id/btnSendComment" android:layout_width="44dp" android:layout_height="44dp" android:layout_marginStart="8dp" android:src="@drawable/ic_send" android:background="@drawable/bg_badge_primary" app:tint="#FFFFFF" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

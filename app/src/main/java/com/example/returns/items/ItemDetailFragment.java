@@ -16,15 +16,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment; // 추가됨
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
-import com.example.returns.add.AddFoundFragment; // 추가됨
-import com.example.returns.add.AddLostFragment;  // 추가됨
+import com.example.returns.add.AddFoundFragment;
+import com.example.returns.add.AddLostFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.text.SimpleDateFormat;
@@ -36,6 +36,10 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     private Item item;
     private TextView badgeType, badgeCategory, badgeStatus;
     private TextView tvTitle, tvLocation, tvDate, tvFeatureContent, tvCommentHeader;
+    // 습득물 전용 뷰 추가
+    private LinearLayout layoutFoundSpecific;
+    private TextView tvHandledByContent, tvContactContent;
+
     private ImageView ivItemImage;
     private LinearLayout layoutCommentsList, layoutOwnerButtons;
     private Button btnEdit, btnDelete;
@@ -92,31 +96,36 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
 
         // 삭제 로직
         btnDelete.setOnClickListener(v -> {
-            new Thread(() -> {
-                AppDatabase.getInstance(requireContext()).itemDao().delete(item);
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "게시물이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
-                        if (getActivity() instanceof MainActivity) {
-                            ((MainActivity) getActivity()).refreshCurrentFragment();
-                        }
-                        dismiss();
-                    });
-                }
-            }).start();
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.RoundedCornersDialog)
+                    .setTitle("삭제 확인")
+                    .setMessage("'" + item.getTitle() + "' 게시글을 삭제하시겠습니까?")
+                    .setPositiveButton("삭제", (dialog, which) -> {
+                        new Thread(() -> {
+                            AppDatabase.getInstance(requireContext()).itemDao().delete(item);
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    Toast.makeText(requireContext(), "게시물이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                                    if (getActivity() instanceof MainActivity) {
+                                        ((MainActivity) getActivity()).refreshCurrentFragment();
+                                    }
+                                    dismiss();
+                                });
+                            }
+                        }).start();
+                    })
+                    .setNegativeButton("취소", null)
+                    .show();
         });
 
         btnEdit.setOnClickListener(v -> {
             Fragment editFragment;
 
-            // 1. 타입(분실/습득)에 따라 이동할 프래그먼트 결정 및 데이터 전달
             if ("FOUND".equalsIgnoreCase(item.getType())) {
                 editFragment = AddFoundFragment.newInstance(item);
             } else {
                 editFragment = AddLostFragment.newInstance(item);
             }
 
-            // 2. 메인 화면의 컨테이너를 해당 프래그먼트로 교체
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, editFragment)
@@ -136,6 +145,11 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         tvLocation = v.findViewById(R.id.tvLocation);
         tvDate = v.findViewById(R.id.tvDate);
         tvFeatureContent = v.findViewById(R.id.tvFeatureContent);
+
+        layoutFoundSpecific = v.findViewById(R.id.layoutFoundSpecific);
+        tvHandledByContent = v.findViewById(R.id.tvHandledByContent);
+        tvContactContent = v.findViewById(R.id.tvContactContent);
+
         ivItemImage = v.findViewById(R.id.ivItemImage);
         tvCommentHeader = v.findViewById(R.id.tvCommentHeader);
         layoutCommentsList = v.findViewById(R.id.layoutCommentsList);
@@ -171,10 +185,19 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
         if ("LOST".equalsIgnoreCase(item.getType())) {
             badgeType.setText("분실물");
             badgeType.setBackgroundResource(R.drawable.bg_badge_lost);
+            if (layoutFoundSpecific != null) layoutFoundSpecific.setVisibility(View.GONE);
+
         } else {
             badgeType.setText("습득물");
             badgeType.setBackgroundResource(R.drawable.bg_badge_primary);
+
+            if (layoutFoundSpecific != null) {
+                layoutFoundSpecific.setVisibility(View.VISIBLE);
+                tvHandledByContent.setText(item.getHandledBy());
+                tvContactContent.setText(item.getContactName());
+            }
         }
+
         badgeCategory.setText(item.getCategory());
         tvTitle.setText(item.getTitle());
         tvLocation.setText(item.getLocation());
