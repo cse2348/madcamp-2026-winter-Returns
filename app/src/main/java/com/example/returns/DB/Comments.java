@@ -2,10 +2,9 @@ package com.example.returns.DB;
 
 public class Comments {
 
-    public int id;
+    public String id;
 
-    public int itemId;        // 게시글 ID
-    public String authorName;  // 작성자 닉네임
+    public com.google.firebase.firestore.DocumentReference ItemId;        // 게시글 ID
     public String message;     // 댓글 내용
     public String timestamp;   // 작성 시간
 

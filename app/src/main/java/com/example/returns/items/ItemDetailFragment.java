@@ -93,11 +93,11 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
 
                 // 1. DB에 저장할 댓글 객체 생성
                 Comments newComment = new Comments();
-                newComment.itemId = item.getId();
-                newComment.authorName = myNickname;
+                newComment.ItemId = item.getRef();
                 newComment.message = commentText;
                 newComment.timestamp = currentTime;
 
+                Comments.
                 // 2. DB 저장 (비동기 처리)
                 new Thread(() -> {
                     AppDatabase.getInstance(requireContext()).commentDao().insert(newComment);
@@ -130,18 +130,20 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                     .setTitle("삭제 확인")
                     .setMessage("'" + item.getTitle() + "' 게시글을 삭제하시겠습니까?")
                     .setPositiveButton("삭제", (dialog, which) -> {
-                        new Thread(() -> {
-                            AppDatabase.getInstance(requireContext()).itemDao().delete(item);
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    Toast.makeText(requireContext(), "게시물이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
-                                    if (getActivity() instanceof MainActivity) {
-                                        ((MainActivity) getActivity()).refreshCurrentFragment();
-                                    }
-                                    dismiss();
-                                });
+                        item.deleteItem(new Item.Callback(){
+                            @Override
+                            public void onSuccess() {
+                                Toast.makeText(requireContext(), "게시물이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                                if (getActivity() instanceof MainActivity) {
+                                    ((MainActivity) getActivity()).refreshCurrentFragment();
+                                }
+                                dismiss();
                             }
-                        }).start();
+                            @Override
+                            public void onError(Exception e) {
+                                Toast.makeText(requireContext(), "게시물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     })
                     .setNegativeButton("취소", null)
                     .show();

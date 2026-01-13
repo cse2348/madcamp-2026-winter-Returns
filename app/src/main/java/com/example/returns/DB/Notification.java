@@ -13,9 +13,8 @@ public class Notification {
 
     public String id;
 
-    public String receiverNickname; // 알림을 받을 사람 (게시글 주인)
-    public String title;           // 게시글 제목
-    public String commenterName;   // 댓글 쓴 사람
+    public com.google.firebase.firestore.DocumentReference Receiver; // 알림을 받을 사람 (게시글 주인)
+    public String Title;           // 게시글 제목
     public String timestamp;       // 알림 시간
 
     public boolean isRead;         // 읽음 여부

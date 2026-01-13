@@ -1,7 +1,10 @@
 package com.example.returns.home;
 
+import static java.security.AccessController.getContext;
+
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -9,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListPopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -118,34 +122,21 @@ public class HomeFragment extends Fragment {
     }
 
     private void applyFilters() {
-        filteredList.clear();
+
         String searchKeyword = (currentSearch != null) ? currentSearch.toLowerCase() : "";
 
-        for (Item item : allItems) {
-            if (item == null) continue;
-
-            // 1. 검색어 필터
-            String title = (item.getTitle() != null) ? item.getTitle().toLowerCase() : "";
-            String location = (item.getLocation() != null) ? item.getLocation().toLowerCase() : "";
-            boolean matchesSearch = title.contains(searchKeyword) || location.contains(searchKeyword);
-
-            // 2. 타입 필터
-            boolean matchesType = "전체".equals(currentType) ||
-                    ("습득".equals(currentType) && "FOUND".equalsIgnoreCase(item.getType())) ||
-                    ("분실".equals(currentType) && "LOST".equalsIgnoreCase(item.getType()));
-
-            // 3. 카테고리 필터
-            boolean matchesCategory = "전체".equals(currentCategory) ||
-                    (item.getCategory() != null && item.getCategory().equals(currentCategory));
-
-            if (matchesSearch && matchesType && matchesCategory) {
-                filteredList.add(item);
+        Item.queryItems(searchKeyword,currentType,currentCategory,new Item.ListItemCallback(){
+            @Override
+            public void onSuccess(List<Item> list) {
+                filteredList=list;
+                if(adapter!=null)adapter.notifyDataSetChanged();
             }
-        }
-
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                Log.e("HomeFragment", "서버와 연결 실패", e);
+            }
+        });
     }
 
     @Override

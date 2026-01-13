@@ -2,11 +2,11 @@ package com.example.returns.DB;
 
 import android.net.Uri;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.Serializable;
@@ -26,7 +26,7 @@ public class Item implements Serializable{
     private String location;       // 발견/분실 장소
     private String dateOccurred;   // 날짜
     private String status;         // "보관중", "찾아감", "미발견"
-    private String authorNickname; // 작성자 닉네임 (본인 확인용)
+    private com.google.firebase.firestore.DocumentReference author; // 작성자 닉네임 (본인 확인용)
     private String contactName;    // 회수 방법
     private String notes;          // 특징/추가 설명
     private String handledBy;      // 보관 장소
@@ -58,9 +58,6 @@ public class Item implements Serializable{
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getAuthorNickname() { return authorNickname; }
-    public void setAuthorNickname(String authorNickname) { this.authorNickname = authorNickname; }
-
     public String getContactName() { return contactName; }
     public void setContactName(String contactName) { this.contactName = contactName; }
 
@@ -73,6 +70,12 @@ public class Item implements Serializable{
     public String getImageUriString() { return imageUriString; }
     public void setImageUriString(String imageUriString) { this.imageUriString = imageUriString; }
 
+    public DocumentReference getRef(){
+        return AppDatabase.getDb()
+            .collection("Items")
+            .document(id);
+    }
+
     public void createSearchKeyword()
     {
         Set<String> keywordSet = new HashSet<>();
@@ -81,7 +84,6 @@ public class Item implements Serializable{
         keywordSet.addAll(generateSearchKeywords(this.location));
         keywordSet.addAll(generateSearchKeywords(this.dateOccurred));
         keywordSet.addAll(generateSearchKeywords(this.status));
-        keywordSet.addAll(generateSearchKeywords(this.authorNickname));
         keywordSet.addAll(generateSearchKeywords(this.notes));
         keywordSet.addAll(generateSearchKeywords(this.handledBy));
         this.searchKeywords = new ArrayList<>(keywordSet);
@@ -220,5 +222,29 @@ public class Item implements Serializable{
         }).addOnFailureListener(e -> {
             callback.onError(e);
         });
+    }
+
+    public void deleteItem(Callback callback) {
+        FirebaseFirestore db = AppDatabase.getDb();
+        DocumentReference itemRef = AppDatabase.getDb()
+                .collection("Items")
+                .document(id);
+
+
+        db.collection("Comments")
+            .whereEqualTo("ItemID", itemRef) // 여기서 핵심은 String이 아닌 Reference 객체를 넣는 것!
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                WriteBatch batch = db.batch();
+                for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                    batch.delete(doc.getReference());
+                }
+                batch.delete(itemRef);
+                batch.commit().addOnSuccessListener(aVoid -> {
+                    if (getImageUriString() != null) Image.eraseImage(getImageUriString());
+                    callback.onSuccess();
+                }).addOnFailureListener(callback::onError);
+            })
+            .addOnFailureListener(e -> callback.onError(e));
     }
 }

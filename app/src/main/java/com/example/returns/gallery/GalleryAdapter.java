@@ -47,7 +47,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             @Override
             public void onError(Exception e) {
                 Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
-                Log.e("GalleryAdapter", "서버와 연결 실패", e)
+                Log.e("GalleryAdapter", "서버와 연결 실패", e);
             }
         });
 
