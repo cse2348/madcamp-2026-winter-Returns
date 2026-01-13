@@ -135,8 +135,10 @@ public class HomeFragment extends Fragment {
         Item.queryItems(searchKeyword,currentType,currentCategory,new Item.ListItemCallback(){
             @Override
             public void onSuccess(List<Item> list) {
-                filteredList=list;
+                filteredList.clear();
+                filteredList.addAll(list);
                 if(adapter!=null)adapter.notifyDataSetChanged();
+                Log.e("HomeFragment", "Filtered list size: " + (list != null ? list.size() : 0));
             }
             @Override
             public void onError(Exception e) {

@@ -36,11 +36,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     public void filter(Context context,String query, String type, String category) {
+        Log.e("GalleryAdapter", "filter called with query: " + query + ", type: " + type + ", category: " + category);
         Item.queryItems(query,type,category,new Item.ListItemCallback(){
             @Override
             public void onSuccess(List<Item> list) {
                 displayItems=list;
                 notifyDataSetChanged();
+                Log.e("Galleryfilter", "Filtered list size: " + (list != null ? list.size() : 0));
             }
             @Override
             public void onError(Exception e) {
@@ -48,7 +50,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 Log.e("GalleryAdapter", "서버와 연결 실패", e);
             }
         });
-
     }
 
     @NonNull

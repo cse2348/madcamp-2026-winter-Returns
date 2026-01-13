@@ -38,6 +38,7 @@ import java.util.Calendar;
 public class AddLostFragment extends Fragment {
 
     private Item editItem = null;
+    private String OldUrl="";
     private Uri selectedImageUri = null;
     private ImageView ivPhoto;
 
@@ -59,6 +60,7 @@ public class AddLostFragment extends Fragment {
 
         if (getArguments() != null) {
             editItem = (Item) getArguments().getSerializable("edit_item");
+            OldUrl=editItem.getImageUriString();
         }
 
         EditText etTitle = view.findViewById(R.id.et_title);
@@ -135,7 +137,7 @@ public class AddLostFragment extends Fragment {
             item.setLocation(etLocation.getText().toString());
             item.setDateOccurred(etTime.getText().toString());
             item.setNotes(etFeatures.getText().toString());
-            item.setAuthor(User.getReferenceByName(currentNickname));
+            item.setAuthor(currentNickname);
             item.setType("LOST");
 
             // 상태 결정 로직
@@ -157,7 +159,7 @@ public class AddLostFragment extends Fragment {
             }
 
             if (editItem != null) {
-                item.updateItemWithImage(editItem.getId(), new Item.Callback() {
+                item.updateItemWithImage(OldUrl, new Item.Callback() {
                     @Override
                     public void onSuccess() {
                         if(isAdded()&&getActivity()!=null){

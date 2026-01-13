@@ -43,11 +43,13 @@ public class Image {
         void onError(Exception e); // 서버 에러 시
     }
     public static void eraseImage(String ImageUrl) {
-        StorageReference storageRef = AppDatabase.getStorage().getReferenceFromUrl(ImageUrl);
+        Log.d("FirebaseImage", "이미지 삭제 시도");
+        if(ImageUrl==null||ImageUrl.isEmpty()||!ImageUrl.startsWith("http"))return;
+        Log.d("FirebaseImage", "이미지 삭제 시작:" + ImageUrl.trim());
+        StorageReference storageRef = AppDatabase.getStorage().getReferenceFromUrl(ImageUrl.trim());
         storageRef.delete().addOnSuccessListener(aVoid -> {
-
-        }).addOnFailureListener(e -> {
-            Log.e("FirebaseImage", "이미지 삭제 실패 (무시하고 진행): " + e.getMessage(), e);
-        });
+            }).addOnFailureListener(e -> {
+                Log.e("FirebaseImage", "이미지 삭제 실패 (무시하고 진행): " + e.getMessage(), e);
+            });
     }
 }

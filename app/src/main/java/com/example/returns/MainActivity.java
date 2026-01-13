@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
         Notification.getUnreadNotifications(myNickname, new Notification.ListNotificationCallback() {
             @Override
             public void onSuccess(List<Notification> list) {
+                Log.d("Notification","도착한 noti :" + list.size());
                 if(isFinishing()||isDestroyed()) return;
                 container.removeAllViews();
                 container.addView(layoutNoNoti);
@@ -196,15 +197,18 @@ public class MainActivity extends AppCompatActivity {
 
                         ((TextView) itemView.findViewById(R.id.tv_noti_message)).setText(noti.Title + " 게시물에 댓글이 달렸습니다.");
 
-                        String formattedTime = sdf.format(noti.timestamp.toDate());
+                        String formattedTime = sdf.format(noti.Timestamp.toDate());
                         ((TextView) itemView.findViewById(R.id.tv_noti_time)).setText(formattedTime);
 
-                        final View divider = (i < list.size() - 1) ? new View(MainActivity.this) : null;
+                        final View divider = new View(MainActivity.this);
 
 
                         itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
                             container.removeView(itemView);//낙관적으로 일단 삭제, 응답 개선
-                            if(divider!=null)container.removeView(divider);
+                            container.removeView(divider);
+                            if(container.getChildCount()<=1){
+                                layoutNoNoti.setVisibility(View.VISIBLE);
+                            }
                             noti.deleteNotification(new Notification.Callback() {
                                 @Override
                                 public void onSuccess() {}
@@ -217,12 +221,10 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         });
+                        divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
+                        divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
+                        container.addView(divider);
                         container.addView(itemView);
-                        if (divider != null) {
-                            divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
-                            divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
-                            container.addView(divider);
-                        }
                     }
                 }
             }

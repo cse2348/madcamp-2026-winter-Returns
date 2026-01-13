@@ -36,6 +36,7 @@ import java.util.Calendar;
 public class AddFoundFragment extends Fragment {
 
     private Item editItem = null;
+    private String OldUrl="";
     private Uri selectedImageUri = null;
     private ImageView ivPhoto;
 
@@ -57,6 +58,7 @@ public class AddFoundFragment extends Fragment {
 
         if (getArguments() != null) {
             editItem = (Item) getArguments().getSerializable("edit_item");
+            OldUrl=editItem.getImageUriString();
         }
 
         EditText etTitle = view.findViewById(R.id.et_title);
@@ -121,6 +123,8 @@ public class AddFoundFragment extends Fragment {
         });
 
         btnSubmit.setOnClickListener(v -> {
+            Button btn = (Button) v;
+            btn.setEnabled(false);
             String title = etTitle.getText().toString().trim();
             if (title.isEmpty()) {
                 Toast.makeText(getContext(), "제목을 입력해주세요.", Toast.LENGTH_SHORT).show();
@@ -139,7 +143,7 @@ public class AddFoundFragment extends Fragment {
             item.setNotes(etFeatures.getText().toString());
             item.setContactName(etHowToFind.getText().toString());
 
-            item.setAuthor(User.getReferenceByName(currentNickname));
+            item.setAuthor(currentNickname);
             item.setType("FOUND");
 
             if (editItem != null) {
@@ -160,12 +164,15 @@ public class AddFoundFragment extends Fragment {
             }
 
             if (editItem != null) {
-                item.updateItemWithImage(editItem.getId(), new Item.Callback() {
+                item.updateItemWithImage(OldUrl, new Item.Callback() {
                     @Override
                     public void onSuccess() {
                         if(isAdded()&&getActivity()!=null){
                             getActivity().runOnUiThread(() -> {
                                 Toast.makeText(getContext(), "수정되었습니다.", Toast.LENGTH_SHORT).show();
+                                if (isAdded() && getActivity() != null) {
+                                    btn.setEnabled(true);
+                                }
                                 if (getActivity() instanceof MainActivity) {
                                     BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
                                     if (bottomNav != null) {
@@ -178,6 +185,7 @@ public class AddFoundFragment extends Fragment {
                     @Override
                     public void onError(Exception e) {
                         if(isAdded()&&getActivity()!=null){
+                            btn.setEnabled(true);
                             getActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
                         }
                         e.printStackTrace();

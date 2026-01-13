@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class User {
-    private String nickname;
+    private String Nickname;
 
     // 결과를 보고받을 리스너 인터페이스
     public interface UserCallback {
@@ -44,6 +44,6 @@ public class User {
 
     public static DocumentReference getReferenceByName(String itemName) {
         // 문서 ID가 곧 이름이므로, .document(itemName)으로 즉시 참조를 만듭니다.
-        return AppDatabase.getDb().collection("Items").document(itemName);
+        return AppDatabase.getDb().collection("Users").document(itemName);
     }
 }

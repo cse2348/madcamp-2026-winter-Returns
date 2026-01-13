@@ -3,6 +3,7 @@ package com.example.returns.items;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,14 +93,12 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
             String commentText = etCommentInput.getText().toString().trim();
 
             if (!commentText.isEmpty()) {
-                String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA).format(new Date());
-
                 // 1. DB에 저장할 댓글 객체 생성
                 Comments newComment = new Comments();
                 newComment.ItemId = item.getRef();
-                newComment.message = commentText;
-                newComment.timestamp = currentTime;
-                newComment.authorName = myNickname;
+                newComment.Message = commentText;
+                newComment.Timestamp = Timestamp.now();
+                newComment.Author = myNickname;
 
                 newComment.uploadToFirebase(new Comments.Callback(){
                     @Override
@@ -107,13 +106,14 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 etCommentInput.setText("");
+                                loadCommentsFromDB();
                             });
                         }
-                        if(item.getAuthor()==User.getReferenceByName(myNickname))return;//나에게는 메시지를 보내지 않음
+                        if(item.getAuthor().equals(myNickname))return;//나에게는 메시지를 보내지 않음
                         Notification newNoti = new Notification();
-                        newNoti.Receiver = item.getAuthor();
+                        newNoti.Receiver = User.getReferenceByName(item.getAuthor());
                         newNoti.Title = item.getTitle();
-                        newNoti.timestamp = Timestamp.now();
+                        newNoti.Timestamp = Timestamp.now();
                         newNoti.Author = myNickname;
 
                         newNoti.uploadToFirebase(new Notification.Callback(){
@@ -214,7 +214,7 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     private void checkOwnership() {
         SharedPreferences pref = requireContext().getSharedPreferences("UserToken", Context.MODE_PRIVATE);
         String currentLoginUser = pref.getString("nickName", "");
-        if (item.getAuthor() != null && item.getAuthor()==User.getReferenceByName(currentLoginUser)) {
+        if (item.getAuthor() != null && item.getAuthor().equals(currentLoginUser)) {
             layoutOwnerButtons.setVisibility(View.VISIBLE);
         } else {
             layoutOwnerButtons.setVisibility(View.GONE);
@@ -222,15 +222,18 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     }
 
     private void loadCommentsFromDB() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy. M. d. a h:mm:ss", Locale.KOREA);
+        Log.d("Comments", "loadCommentsFromDB: ");
         Comments.getCommentsForItem(item, new Comments.ListCommentCallback() {
             @Override
             public void onSuccess(List<Comments> list) {
+                Log.d("loadCommentsFromDB", "onSuccess: " + list.size());
                 if (isAdded() && getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         layoutCommentsList.removeAllViews();
                         commentCount = 0;
                         for (Comments c : list) {
-                            addCommentUI(c.authorName, c.message, c.timestamp);
+                            addCommentUI(c.Author, c.Message, sdf.format(c.Timestamp.toDate()));
                         }
                         tvCommentHeader.setText("댓글 (" + commentCount + ")");
                     });
@@ -241,6 +244,7 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
             public void onError(Exception e) {
                 if (isAdded()&& getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
+                        Log.e("loadCommentsFromDB", "onError: ", e);
                         Toast.makeText(requireContext(), "댓글 로딩에 실패했습니다.", Toast.LENGTH_SHORT).show();
                     });
                 }

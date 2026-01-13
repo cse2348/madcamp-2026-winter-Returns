@@ -4,6 +4,7 @@ import android.net.Uri;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
@@ -19,84 +20,87 @@ import java.util.Map;
 import java.util.Set;
 
 public class Item implements Serializable{
+    @Exclude
+    private String Id; // 데이터 고유 번호
 
-    private String id; // 데이터 고유 번호
-    private String type;           // "LOST" 또는 "FOUND"
-    private String category;
-    private String title;          // 제목
-    private String location;       // 발견/분실 장소
-    private String dateOccurred;   // 날짜
-    private String status;         // "보관중", "찾아감", "미발견"
-    private DocumentReference author; // 작성자 닉네임 (본인 확인용)
-    private String contactName;    // 회수 방법
-    private String notes;          // 특징/추가 설명
-    private String handledBy;      // 보관 장소
-    private String imageUriString; // 이미지 경로 (String 형태)
+    private String Type;           // "LOST" 또는 "FOUND"
+    private String Category;
+    private String Title;          // 제목
+    private String Location;       // 발견/분실 장소
+    private String DateOccurred;   // 날짜
+    private String Status;         // "보관중", "찾아감", "미발견"
+    private String Author; // 작성자 닉네임 (본인 확인용)
+    private String ContactName;    // 회수 방법
+    private String Notes;          // 특징/추가 설명
+    private String HandledBy;      // 보관 장소
+    private String ImageUriString; // 이미지 경로 (String 형태)
 
-    private List<String> searchKeywords; //검색 키워드들
+    private List<String> SearchKeywords; //검색 키워드들
 
     // 기본 생성자
     public Item() {
     }
 
-    public String getId() { return id; }
+    @Exclude
+    public String getId() { return Id; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getType() { return Type; }
+    public void setType(String type) { this.Type = type; }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public String getCategory() { return Category; }
+    public void setCategory(String category) { this.Category = category; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getTitle() { return Title; }
+    public void setTitle(String title) { this.Title = title; }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+    public String getLocation() { return Location; }
+    public void setLocation(String location) { this.Location = location; }
 
-    public String getDateOccurred() { return dateOccurred; }
-    public void setDateOccurred(String dateOccurred) { this.dateOccurred = dateOccurred; }
+    public String getDateOccurred() { return DateOccurred; }
+    public void setDateOccurred(String dateOccurred) { this.DateOccurred = dateOccurred; }
 
-    public com.google.firebase.firestore.DocumentReference getAuthor(){return author;}
-    public void setAuthor(com.google.firebase.firestore.DocumentReference author) {this.author=author;}
+    public String getAuthor(){return Author;}
+    public void setAuthor(String author) {this.Author=author;}
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getStatus() { return Status; }
+    public void setStatus(String status) { this.Status = status; }
 
-    public String getContactName() { return contactName; }
-    public void setContactName(String contactName) { this.contactName = contactName; }
+    public String getContactName() { return ContactName; }
+    public void setContactName(String contactName) { this.ContactName = contactName; }
 
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
+    public String getNotes() { return Notes; }
+    public void setNotes(String notes) { this.Notes = notes; }
 
-    public String getHandledBy() { return handledBy; }
-    public void setHandledBy(String handledBy) { this.handledBy = handledBy; }
+    public String getHandledBy() { return HandledBy; }
+    public void setHandledBy(String handledBy) { this.HandledBy = handledBy; }
 
-    public String getImageUriString() { return imageUriString; }
-    public void setImageUriString(String imageUriString) { this.imageUriString = imageUriString; }
+    public String getImageUriString() { return ImageUriString; }
+    public void setImageUriString(String imageUriString) { this.ImageUriString = imageUriString; }
 
+    @Exclude
     public DocumentReference getRef(){
         return AppDatabase.getDb()
             .collection("Items")
-            .document(id);
+            .document(Id);
     }
 
     public void createSearchKeyword()
     {
         Set<String> keywordSet = new HashSet<>();
-        keywordSet.addAll(generateSearchKeywords(this.title));
-        keywordSet.addAll(generateSearchKeywords(this.category));
-        keywordSet.addAll(generateSearchKeywords(this.location));
-        keywordSet.addAll(generateSearchKeywords(this.dateOccurred));
-        keywordSet.addAll(generateSearchKeywords(this.status));
-        keywordSet.addAll(generateSearchKeywords(this.notes));
-        keywordSet.addAll(generateSearchKeywords(this.handledBy));
-        this.searchKeywords = new ArrayList<>(keywordSet);
+        keywordSet.addAll(generateSearchKeywords(this.Title));
+        keywordSet.addAll(generateSearchKeywords(this.Category));
+        keywordSet.addAll(generateSearchKeywords(this.Location));
+        keywordSet.addAll(generateSearchKeywords(this.DateOccurred));
+        keywordSet.addAll(generateSearchKeywords(this.Status));
+        keywordSet.addAll(generateSearchKeywords(this.Notes));
+        keywordSet.addAll(generateSearchKeywords(this.HandledBy));
+        this.SearchKeywords = new ArrayList<>(keywordSet);
     }
     private List<String> generateSearchKeywords(String tar) {
         if (tar == null || tar.isEmpty()) return new ArrayList<String>();
 
         List<String> keywordSet = new ArrayList<String>();
-        String[] words = this.title.toLowerCase().split("\\s+");
+        String[] words = tar.toLowerCase().split("\\s+");
         for (String word : words) {
             if (!word.isEmpty()) {
                 for (int i = 1; i <= word.length(); i++) {
@@ -135,10 +139,10 @@ public class Item implements Serializable{
 
     private void uploadToFirebase(Callback callback) {
         createSearchKeyword();
-        AppDatabase.getDb().collection("items")
+        AppDatabase.getDb().collection("Items")
                 .add(this)
                 .addOnSuccessListener(documentReference -> {
-                    id=documentReference.getId();
+                    Id=documentReference.getId();
                     callback.onSuccess();
                 })
                 .addOnFailureListener(e -> {
@@ -146,17 +150,16 @@ public class Item implements Serializable{
                 });
     }
 
-    public void updateItemWithImage(String docId,Callback callback) {
+    public void updateItemWithImage(String Old_image,Callback callback) {
         String imageUri = getImageUriString();
 
         if (imageUri != null && !imageUri.isEmpty() && !imageUri.startsWith("http")) {
-            String old_image=getImageUriString();
             Image.uploadImage(Uri.parse(imageUri), new Image.StringCallback() {
                 @Override
                 public void onSuccess(String url) {
-                    Image.eraseImage(old_image);
+                    Image.eraseImage(Old_image);
                     setImageUriString(url);
-                    updateToFirebase(docId,callback);
+                    updateToFirebase(callback);
                 }
 
                 @Override
@@ -165,12 +168,12 @@ public class Item implements Serializable{
                 }
             });
         } else {
-            updateToFirebase(docId,callback);
+            updateToFirebase(callback);
         }
     }
-    private void updateToFirebase(String docId, Callback callback) {
+    private void updateToFirebase(Callback callback) {
         createSearchKeyword();
-        AppDatabase.getDb().collection("items").document(docId)
+        AppDatabase.getDb().collection("Items").document(Id)
                 .set(this)
                 .addOnSuccessListener(aVoid -> callback.onSuccess())
                 .addOnFailureListener(callback::onError);
@@ -180,16 +183,18 @@ public class Item implements Serializable{
         void onSuccess(List<Item> list);
         void onError(Exception e);
     }
+
+    @Exclude
     public static void getAllItems(ListItemCallback callback) {
         AppDatabase.getDb().collection("Items")
-                .orderBy("dateOccured", Query.Direction.DESCENDING) // 최신순
+                .orderBy("DateOccurred", Query.Direction.DESCENDING) // 최신순
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Item> list = new ArrayList<>();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         Item n = doc.toObject(Item.class);
                         if (n != null) {
-                            n.id = doc.getId(); // 수정할 때 필요함
+                            n.Id = doc.getId(); // 수정할 때 필요함
                             list.add(n);
                         }
                     }
@@ -200,16 +205,16 @@ public class Item implements Serializable{
 
     public static void queryItems(String query,String type, String category, ListItemCallback callback) {
         String lowerQuery = query.toLowerCase().trim();
-        Query baseQuery = AppDatabase.getDb().collection("items");
+        Query baseQuery = AppDatabase.getDb().collection("Items");
         if (!type.equals("전체")) {
             String typeValue = type.equals("습득") ? "FOUND" : "LOST";
-            baseQuery = baseQuery.whereEqualTo("type", typeValue);
+            baseQuery = baseQuery.whereEqualTo("Type", typeValue);
         }
         if (!category.equals("전체")) {
-            baseQuery = baseQuery.whereEqualTo("category", category);
+            baseQuery = baseQuery.whereEqualTo("Category", category);
         }
         if (!lowerQuery.isEmpty()) {
-            baseQuery = baseQuery.whereArrayContains("searchKeywords", lowerQuery);
+            baseQuery = baseQuery.whereArrayContains("SearchKeywords", lowerQuery);
         }
 
         // 5. 서버에서 가져오기
@@ -218,7 +223,7 @@ public class Item implements Serializable{
             for (DocumentSnapshot doc : queryDocumentSnapshots) {
                 Item item = doc.toObject(Item.class);
                 if (item != null) {
-                    item.id =doc.getId();
+                    item.Id =doc.getId();
                     r_val.add(item);
                 }
             }
@@ -232,11 +237,11 @@ public class Item implements Serializable{
         FirebaseFirestore db = AppDatabase.getDb();
         DocumentReference itemRef = AppDatabase.getDb()
                 .collection("Items")
-                .document(id);
+                .document(Id);
 
 
         db.collection("Comments")
-            .whereEqualTo("ItemID", itemRef) // 여기서 핵심은 String이 아닌 Reference 객체를 넣는 것!
+            .whereEqualTo("ItemId", itemRef) // 여기서 핵심은 String이 아닌 Reference 객체를 넣는 것!
             .get()
             .addOnSuccessListener(queryDocumentSnapshots -> {
                 WriteBatch batch = db.batch();

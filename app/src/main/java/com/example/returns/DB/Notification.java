@@ -1,6 +1,7 @@
 package com.example.returns.DB;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -10,14 +11,13 @@ import java.util.List;
 
 public class Notification {
 
+    @Exclude
     public String Id;
 
     public DocumentReference Receiver; // 알림을 받을 사람 (게시글 주인)
     public String Author;
     public String Title;           // 게시글 제목
-    public Timestamp timestamp;       // 알림 시간
-
-    public boolean isRead;         // 읽음 여부
+    public Timestamp Timestamp;       // 알림 시간
 
     public Notification() {
     }
@@ -46,8 +46,7 @@ public class Notification {
         DocumentReference myRef = User.getReferenceByName(nickname);
         AppDatabase.getDb().collection("Notifications")
                 .whereEqualTo("Receiver", myRef)
-                .whereEqualTo("isRead", false) // 안 읽은 것만 필터링
-                .orderBy("timestamp", Query.Direction.DESCENDING) // 최신순
+                .orderBy("Timestamp", Query.Direction.DESCENDING) // 최신순
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Notification> list = new ArrayList<>();
