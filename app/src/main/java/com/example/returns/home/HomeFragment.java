@@ -30,7 +30,6 @@ public class HomeFragment extends Fragment {
     private ItemAdapter adapter;
     private List<Item> allItems = new ArrayList<>();
     private List<Item> filteredList = new ArrayList<>();
-    private ItemDao itemDao;
 
     private String currentSearch = "";
     private String currentType = "전체";
@@ -42,8 +41,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        itemDao = AppDatabase.getInstance(getContext()).itemDao();
 
         // 1. RecyclerView 설정
         RecyclerView rv = view.findViewById(R.id.recyclerView);

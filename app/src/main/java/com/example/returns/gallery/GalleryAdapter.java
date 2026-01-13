@@ -1,10 +1,15 @@
 package com.example.returns.gallery;
 
+import static java.security.AccessController.getContext;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -15,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
-    private List<Item> allItems = new ArrayList<>();
     private List<Item> displayItems = new ArrayList<>();
 
 
@@ -29,25 +33,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
 
     public void updateData(List<Item> newItems) {
-        this.allItems = newItems;
         this.displayItems = new ArrayList<>(newItems);
         notifyDataSetChanged();
     }
 
     public void filter(String query, String type, String category) {
-        displayItems.clear();
-        for (Item item : allItems) {
-            boolean matchesSearch = item.getTitle().toLowerCase().contains(query.toLowerCase());
-            boolean matchesType = type.equals("전체") ||
-                    (type.equals("습득") && "FOUND".equalsIgnoreCase(item.getType())) ||
-                    (type.equals("분실") && "LOST".equalsIgnoreCase(item.getType()));
-            boolean matchesCategory = category.equals("전체") || category.equals(item.getCategory());
-
-            if (matchesSearch && matchesType && matchesCategory) {
-                displayItems.add(item);
+        Item.queryItems(query,type,category,new Item.ListItemCallback(){
+            @Override
+            public void onSuccess(List<Item> list) {
+                displayItems=list;
+                notifyDataSetChanged();
             }
-        }
-        notifyDataSetChanged();
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                Log.e("GalleryAdapter", "서버와 연결 실패", e)
+            }
+        });
+
     }
 
     @NonNull

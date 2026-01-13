@@ -153,27 +153,49 @@ public class AddLostFragment extends Fragment {
                 item.setCategory(chip.getText().toString());
             }
 
-            new Thread(() -> {
-                try {
-                    if (editItem != null) {
-                        AppDatabase.getInstance(getContext()).itemDao().update(item);
-                    } else {
-                        AppDatabase.getInstance(getContext()).itemDao().insert(item);
-                    }
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), editItem != null ? "수정되었습니다." : "등록되었습니다.", Toast.LENGTH_SHORT).show();
+            if (editItem != null) {
+                item.updateItemWithImage(editItem.getId(), new Item.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "수정되었습니다.", Toast.LENGTH_SHORT).show();
 
-                        if (getActivity() instanceof MainActivity) {
-                            BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
-                            if (bottomNav != null) {
-                                bottomNav.setSelectedItemId(R.id.nav_home);
+                            if (getActivity() instanceof MainActivity) {
+                                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                                if (bottomNav != null) {
+                                    bottomNav.setSelectedItemId(R.id.nav_home);
+                                }
                             }
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
+                        });
+                    }
+                    @Override
+                    public void onError(Exception e) {
+                        requireActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                item.uploadItemWithImage( new Item.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
+
+                            if (getActivity() instanceof MainActivity) {
+                                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                                if (bottomNav != null) {
+                                    bottomNav.setSelectedItemId(R.id.nav_home);
+                                }
+                            }
+                        });
+                    }
+                    @Override
+                    public void onError(Exception e) {
+                        requireActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        e.printStackTrace();
+                    }
+                });
+            }
         });
     }
 }

@@ -5,15 +5,21 @@ import android.net.Uri;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class Item{
+public class Item implements Serializable{
 
-    private int id; // 데이터 고유 번호
+    private String id; // 데이터 고유 번호
     private String type;           // "LOST" 또는 "FOUND"
     private String category;
     private String title;          // 제목
@@ -26,12 +32,13 @@ public class Item{
     private String handledBy;      // 보관 장소
     private String imageUriString; // 이미지 경로 (String 형태)
 
+    private List<String> searchKeywords; //검색 키워드들
+
     // 기본 생성자
     public Item() {
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getId() { return id; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
@@ -66,6 +73,34 @@ public class Item{
     public String getImageUriString() { return imageUriString; }
     public void setImageUriString(String imageUriString) { this.imageUriString = imageUriString; }
 
+    public void createSearchKeyword()
+    {
+        Set<String> keywordSet = new HashSet<>();
+        keywordSet.addAll(generateSearchKeywords(this.title));
+        keywordSet.addAll(generateSearchKeywords(this.category));
+        keywordSet.addAll(generateSearchKeywords(this.location));
+        keywordSet.addAll(generateSearchKeywords(this.dateOccurred));
+        keywordSet.addAll(generateSearchKeywords(this.status));
+        keywordSet.addAll(generateSearchKeywords(this.authorNickname));
+        keywordSet.addAll(generateSearchKeywords(this.notes));
+        keywordSet.addAll(generateSearchKeywords(this.handledBy));
+        this.searchKeywords = new ArrayList<>(keywordSet);
+    }
+    private List<String> generateSearchKeywords(String tar) {
+        if (tar == null || tar.isEmpty()) return new ArrayList<String>();
+
+        List<String> keywordSet = new ArrayList<String>();
+        String[] words = this.title.toLowerCase().split("\\s+");
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                for (int i = 1; i <= word.length(); i++) {
+                    keywordSet.add(word.substring(0, i));
+                }
+            }
+        }
+        return keywordSet;
+    }
+
     public interface Callback {
         void onSuccess();
         void onError(Exception e);
@@ -75,7 +110,7 @@ public class Item{
         String imageUri = getImageUriString();
 
         if (imageUri != null && !imageUri.isEmpty() && !imageUri.startsWith("http")) {
-            Image.uploadImage(Uri.parse(imageUri), new Image.Callback() {
+            Image.uploadImage(Uri.parse(imageUri), new Image.StringCallback() {
                 @Override
                 public void onSuccess(String url) {
                     setImageUriString(url);
@@ -93,13 +128,97 @@ public class Item{
     }
 
     private void uploadToFirebase(Callback callback) {
+        createSearchKeyword();
         AppDatabase.getDb().collection("items")
                 .add(this)
                 .addOnSuccessListener(documentReference -> {
+                    id=documentReference.getId();
                     callback.onSuccess();
                 })
                 .addOnFailureListener(e -> {
                     callback.onError(e);
                 });
+    }
+
+    public void updateItemWithImage(String docId,Callback callback) {
+        String imageUri = getImageUriString();
+
+        if (imageUri != null && !imageUri.isEmpty() && !imageUri.startsWith("http")) {
+            String old_image=getImageUriString();
+            Image.uploadImage(Uri.parse(imageUri), new Image.StringCallback() {
+                @Override
+                public void onSuccess(String url) {
+                    Image.eraseImage(old_image);
+                    setImageUriString(url);
+                    updateToFirebase(docId,callback);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    callback.onError(e);
+                }
+            });
+        } else {
+            updateToFirebase(docId,callback);
+        }
+    }
+    private void updateToFirebase(String docId, Callback callback) {
+        createSearchKeyword();
+        AppDatabase.getDb().collection("items").document(docId)
+                .set(this)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onError);
+    }
+
+    public interface ListItemCallback {
+        void onSuccess(List<Item> list);
+        void onError(Exception e);
+    }
+    public static void getAllItems(ListItemCallback callback) {
+        AppDatabase.getDb().collection("Items")
+                .orderBy("dateOccured", Query.Direction.DESCENDING) // 최신순
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Item> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        Item n = doc.toObject(Item.class);
+                        if (n != null) {
+                            n.id = doc.getId(); // 수정할 때 필요함
+                            list.add(n);
+                        }
+                    }
+                    callback.onSuccess(list);
+                })
+                .addOnFailureListener(e->callback.onError(e));
+    }
+
+    public static void queryItems(String query,String type, String category, ListItemCallback callback) {
+        String lowerQuery = query.toLowerCase().trim();
+        Query baseQuery = AppDatabase.getDb().collection("items");
+        if (!type.equals("전체")) {
+            String typeValue = type.equals("습득") ? "FOUND" : "LOST";
+            baseQuery = baseQuery.whereEqualTo("type", typeValue);
+        }
+        if (!category.equals("전체")) {
+            baseQuery = baseQuery.whereEqualTo("category", category);
+        }
+        if (!lowerQuery.isEmpty()) {
+            baseQuery = baseQuery.whereArrayContains("searchKeywords", lowerQuery);
+        }
+
+        // 5. 서버에서 가져오기
+        baseQuery.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<Item> r_val=new ArrayList<Item>();
+            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                Item item = doc.toObject(Item.class);
+                if (item != null) {
+                    item.id =doc.getId();
+                    r_val.add(item);
+                }
+            }
+            callback.onSuccess(r_val);
+        }).addOnFailureListener(e -> {
+            callback.onError(e);
+        });
     }
 }

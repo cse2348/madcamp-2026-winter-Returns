@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListPopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -110,18 +111,23 @@ public class GalleryFragment extends Fragment {
 
     // 데이터 로드 (MainActivity에서 호출)
     public void loadData() {
-        new Thread(() -> {
-            AppDatabase db = AppDatabase.getInstance(getContext());
-            List<Item> items = db.itemDao().getAllItems();
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (adapter != null) {
-                        adapter.updateData(items);
-                        applyFilters();
-                    }
-                });
+        Item.getAllItems(new Item.ListItemCallback(){
+            @Override
+            public void onSuccess(List<Item> list) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (adapter != null) {
+                            adapter.updateData(list);
+                            applyFilters();
+                        }
+                    });
+                }
             }
-        }).start();
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void applyFilters() {
