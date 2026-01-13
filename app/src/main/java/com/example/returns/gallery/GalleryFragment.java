@@ -2,6 +2,7 @@ package com.example.returns.gallery;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -114,7 +115,7 @@ public class GalleryFragment extends Fragment {
         Item.getAllItems(new Item.ListItemCallback(){
             @Override
             public void onSuccess(List<Item> list) {
-                if (getActivity() != null) {
+                if (isAdded()&&getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         if (adapter != null) {
                             adapter.updateData(list);
@@ -125,7 +126,13 @@ public class GalleryFragment extends Fragment {
             }
             @Override
             public void onError(Exception e) {
-                Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                if (isAdded()&&getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                        Log.e("GalleryFragment", "데이터 로드 실패",e);
+                    });
+                }
+
             }
         });
     }
@@ -133,7 +140,7 @@ public class GalleryFragment extends Fragment {
     private void applyFilters() {
         if (adapter != null) {
             // GalleryAdapter 내부의 filter 기능을 사용
-            adapter.filter(currentSearch, currentType, currentCategory);
+            adapter.filter(getContext(),currentSearch, currentType, currentCategory);
         }
     }
 

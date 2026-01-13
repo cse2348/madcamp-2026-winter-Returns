@@ -1,5 +1,7 @@
 package com.example.returns.add;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -23,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
+import com.example.returns.DB.User;
 import com.example.returns.MainActivity; // 추가
 import com.example.returns.R;
 import com.example.returns.home.HomeFragment;
@@ -124,7 +127,7 @@ public class AddLostFragment extends Fragment {
                 return;
             }
 
-            SharedPreferences pref = requireContext().getSharedPreferences("UserToken", Context.MODE_PRIVATE);
+            SharedPreferences pref = requireContext().getSharedPreferences("UserToken", MODE_PRIVATE);
             String currentNickname = pref.getString("nickName", "익명");
 
             Item item = (editItem != null) ? editItem : new Item();
@@ -132,7 +135,7 @@ public class AddLostFragment extends Fragment {
             item.setLocation(etLocation.getText().toString());
             item.setDateOccurred(etTime.getText().toString());
             item.setNotes(etFeatures.getText().toString());
-            item.setAuthorNickname(currentNickname);
+            item.setAuthor(User.getReferenceByName(currentNickname));
             item.setType("LOST");
 
             // 상태 결정 로직
@@ -157,20 +160,23 @@ public class AddLostFragment extends Fragment {
                 item.updateItemWithImage(editItem.getId(), new Item.Callback() {
                     @Override
                     public void onSuccess() {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "수정되었습니다.", Toast.LENGTH_SHORT).show();
-
-                            if (getActivity() instanceof MainActivity) {
-                                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
-                                if (bottomNav != null) {
-                                    bottomNav.setSelectedItemId(R.id.nav_home);
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "수정되었습니다.", Toast.LENGTH_SHORT).show();
+                                if (getActivity() instanceof MainActivity) {
+                                    BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                                    if (bottomNav != null) {
+                                        bottomNav.setSelectedItemId(R.id.nav_home);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                     @Override
                     public void onError(Exception e) {
-                        requireActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        }
                         e.printStackTrace();
                     }
                 });
@@ -178,20 +184,23 @@ public class AddLostFragment extends Fragment {
                 item.uploadItemWithImage( new Item.Callback() {
                     @Override
                     public void onSuccess() {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
-
-                            if (getActivity() instanceof MainActivity) {
-                                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
-                                if (bottomNav != null) {
-                                    bottomNav.setSelectedItemId(R.id.nav_home);
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
+                                if (getActivity() instanceof MainActivity) {
+                                    BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                                    if (bottomNav != null) {
+                                        bottomNav.setSelectedItemId(R.id.nav_home);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                     @Override
                     public void onError(Exception e) {
-                        requireActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        }
                         e.printStackTrace();
                     }
                 });

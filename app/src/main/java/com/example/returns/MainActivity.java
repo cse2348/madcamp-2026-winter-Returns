@@ -1,9 +1,12 @@
 package com.example.returns;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,21 +27,28 @@ import androidx.fragment.app.Fragment;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
 import com.example.returns.DB.Notification;
+import com.example.returns.DB.User;
 import com.example.returns.add.AddFoundFragment;
 import com.example.returns.add.AddLostFragment;
 import com.example.returns.gallery.GalleryFragment;
 import com.example.returns.home.HomeFragment;
 import com.example.returns.items.ItemDetailFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String userNickname;
     private RelativeLayout rootLayout;
     PopupWindow popupWindow_noti;
 
@@ -54,12 +65,6 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        userNickname = getIntent().getStringExtra("userNickname");
-        if (userNickname != null) {
-            SharedPreferences pref = getSharedPreferences("UserToken", MODE_PRIVATE);
-            pref.edit().putString("nickName", userNickname).apply();
-        }
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -91,30 +96,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void handleCommentAdded(int itemId, String itemTitle, String commenterName, String authorName) {
 
-        if (authorName != null && authorName.equals(commenterName)) {
-            return;
-        }
+    //리얼타임팝업 안할꺼니깐...
+    /*
+    private void ReadyNotification()
+    {
+        FirebaseFirestore db = AppDatabase.getDb();
 
-        SharedPreferences pref = getSharedPreferences("UserToken", MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences("UserToken", Context.MODE_PRIVATE);
         String myNickname = pref.getString("nickName", "익명");
-        String currentTime = new SimpleDateFormat("yyyy. M. d. a h:mm:ss", Locale.KOREA).format(new Date());
+        DocumentReference myRef = User.getReferenceByName(myNickname);
 
-        new Thread(() -> {
-            Notification newNoti = new Notification();
-            newNoti.receiverNickname = authorName;
-            newNoti.title = itemTitle;
-            newNoti.commenterName = commenterName;
-            newNoti.timestamp = currentTime;
+        db.collection("Notifications")
+                .whereEqualTo("Receiver", myRef)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener((value, error) -> { // 실시간 업데이트를 위해 SnapshotListener 사용
+                    if (error != null) {
+                        Log.e("Firestore", "알림 로드 실패", error);
+                        //여기에서 서버 연결이 끊겼다고 해도 되긴합니다
+                    }
 
-            AppDatabase.getInstance(this).notificationDao().insert(newNoti);
+                    if (value != null && !isFinishing() && !isDestroyed() ) {
+                        //List<Notification> list = new ArrayList<>();
+                        for (DocumentSnapshot doc : value) {
+                            Notification n = doc.toObject(Notification.class);
+                            if (n != null) {
+                                //list.add(n);
+                                n.Id=doc.getId();
+                                String formattedTime = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA).format(n.timestamp.toDate());
+                                runOnUiThread(() -> showRealtimePopup(n.Title, n.Author, formattedTime));
+                            }
+                        }
 
-            if (authorName != null && authorName.equals(myNickname) && !commenterName.equals(myNickname)) {
-                runOnUiThread(() -> showRealtimePopup(itemTitle, commenterName, currentTime));
-            }
-        }).start();
-    }
+                    }
+                });
+    }*/
 
     private void showRealtimePopup(String title, String commenter, String time) {
         LayoutInflater inflater = getLayoutInflater();
@@ -141,7 +157,9 @@ public class MainActivity extends AppCompatActivity {
     private void showUserModal(View anchorView) {
         View modalView = getLayoutInflater().inflate(R.layout.layout_user_modal, null);
         TextView tvUserId = modalView.findViewById(R.id.tv_modal_user_id);
-        if (tvUserId != null) tvUserId.setText(userNickname);
+        SharedPreferences pref = getSharedPreferences("UserToken", Context.MODE_PRIVATE);
+        String myNickname = pref.getString("nickName", "익명");
+        if (tvUserId != null) tvUserId.setText(myNickname);
 
         loadNotificationList(modalView);
 
@@ -152,50 +170,71 @@ public class MainActivity extends AppCompatActivity {
     private void loadNotificationList(View modalView) {
         LinearLayout container = modalView.findViewById(R.id.noti_container);
         View layoutNoNoti = modalView.findViewById(R.id.layout_no_notification);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy. M. d. a h:mm:ss", Locale.KOREA);
 
         if (container == null || layoutNoNoti == null) return;
 
         SharedPreferences pref = getSharedPreferences("UserToken", MODE_PRIVATE);
         String myNickname = pref.getString("nickName", "익명");
 
-        new Thread(() -> {
-            List<Notification> notiList = AppDatabase.getInstance(this).notificationDao().getNotificationsForUser(myNickname);
-
-            runOnUiThread(() -> {
+        Notification.getUnreadNotifications(myNickname, new Notification.ListNotificationCallback() {
+            @Override
+            public void onSuccess(List<Notification> list) {
+                if(isFinishing()||isDestroyed()) return;
                 container.removeAllViews();
                 container.addView(layoutNoNoti);
-
-                if (notiList == null || notiList.isEmpty()) {
+                if(list==null||list.isEmpty()) {
                     layoutNoNoti.setVisibility(View.VISIBLE);
-                } else {
+                    return;
+                }
+                else {
                     layoutNoNoti.setVisibility(View.GONE);
 
-                    for (int i = 0; i < notiList.size(); i++) {
-                        final Notification noti = notiList.get(i);
+                    for (int i = 0; i < list.size(); i++) {
+                        final Notification noti = list.get(i);
                         View itemView = getLayoutInflater().inflate(R.layout.layout_item_notification, container, false);
 
-                        ((TextView) itemView.findViewById(R.id.tv_noti_message)).setText(noti.title + " 게시물에 댓글이 달렸습니다.");
-                        ((TextView) itemView.findViewById(R.id.tv_noti_time)).setText(noti.timestamp);
+                        ((TextView) itemView.findViewById(R.id.tv_noti_message)).setText(noti.Title + " 게시물에 댓글이 달렸습니다.");
+
+                        String formattedTime = sdf.format(noti.timestamp.toDate());
+                        ((TextView) itemView.findViewById(R.id.tv_noti_time)).setText(formattedTime);
+
+                        final View divider = (i < list.size() - 1) ? new View(MainActivity.this) : null;
+
 
                         itemView.findViewById(R.id.btn_noti_confirm).setOnClickListener(v -> {
-                            new Thread(() -> {
-                                AppDatabase.getInstance(this).notificationDao().delete(noti);
-                                runOnUiThread(() -> loadNotificationList(modalView));
-                            }).start();
+                            container.removeView(itemView);//낙관적으로 일단 삭제, 응답 개선
+                            if(divider!=null)container.removeView(divider);
+                            noti.deleteNotification(new Notification.Callback() {
+                                @Override
+                                public void onSuccess() {}
+
+                                @Override
+                                public void onError(Exception e) {
+                                    if(!isFinishing() && !isDestroyed()){
+                                        Toast.makeText(MainActivity.this,"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                         });
-
                         container.addView(itemView);
-
-                        if (i < notiList.size() - 1) {
-                            View divider = new View(this);
+                        if (divider != null) {
                             divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
                             divider.setBackgroundColor(Color.parseColor("#F1F5F9"));
                             container.addView(divider);
                         }
                     }
                 }
-            });
-        }).start();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if(!isFinishing() && !isDestroyed()){
+                    Toast.makeText(MainActivity.this,"알림 수신에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                    Log.e("MainActivity","loadNotificationlist",e);
+                }
+            }
+        });
     }
 
     public void showItemDetail(Item item) {

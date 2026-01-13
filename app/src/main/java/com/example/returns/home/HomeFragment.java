@@ -111,14 +111,21 @@ public class HomeFragment extends Fragment {
 
     // 데이터 로드 
     public void loadData() {
-        new Thread(() -> {
-            if (itemDao != null) {
-                allItems = itemDao.getAllItems();
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(this::applyFilters);
+        Item.getAllItems(new Item.ListItemCallback(){
+            @Override
+            public void onSuccess(List<Item> list) {
+                allItems=list;
+                if (isAdded()&&getActivity() != null) {
+                    getActivity().runOnUiThread(()->applyFilters());
                 }
             }
-        }).start();
+            @Override
+            public void onError(Exception e) {
+                if (isAdded()&&getActivity() != null) {
+                    Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void applyFilters() {

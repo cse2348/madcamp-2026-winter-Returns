@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class Item implements Serializable{
     private String location;       // 발견/분실 장소
     private String dateOccurred;   // 날짜
     private String status;         // "보관중", "찾아감", "미발견"
-    private com.google.firebase.firestore.DocumentReference author; // 작성자 닉네임 (본인 확인용)
+    private DocumentReference author; // 작성자 닉네임 (본인 확인용)
     private String contactName;    // 회수 방법
     private String notes;          // 특징/추가 설명
     private String handledBy;      // 보관 장소
@@ -54,6 +55,9 @@ public class Item implements Serializable{
 
     public String getDateOccurred() { return dateOccurred; }
     public void setDateOccurred(String dateOccurred) { this.dateOccurred = dateOccurred; }
+
+    public com.google.firebase.firestore.DocumentReference getAuthor(){return author;}
+    public void setAuthor(com.google.firebase.firestore.DocumentReference author) {this.author=author;}
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

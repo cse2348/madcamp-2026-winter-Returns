@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
+import com.example.returns.DB.User;
 import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.example.returns.home.HomeFragment;
@@ -138,7 +139,7 @@ public class AddFoundFragment extends Fragment {
             item.setNotes(etFeatures.getText().toString());
             item.setContactName(etHowToFind.getText().toString());
 
-            item.setAuthorNickname(currentNickname);
+            item.setAuthor(User.getReferenceByName(currentNickname));
             item.setType("FOUND");
 
             if (editItem != null) {
@@ -162,20 +163,23 @@ public class AddFoundFragment extends Fragment {
                 item.updateItemWithImage(editItem.getId(), new Item.Callback() {
                     @Override
                     public void onSuccess() {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "수정되었습니다.", Toast.LENGTH_SHORT).show();
-
-                            if (getActivity() instanceof MainActivity) {
-                                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
-                                if (bottomNav != null) {
-                                    bottomNav.setSelectedItemId(R.id.nav_home);
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "수정되었습니다.", Toast.LENGTH_SHORT).show();
+                                if (getActivity() instanceof MainActivity) {
+                                    BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                                    if (bottomNav != null) {
+                                        bottomNav.setSelectedItemId(R.id.nav_home);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                     @Override
                     public void onError(Exception e) {
-                        requireActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        }
                         e.printStackTrace();
                     }
                 });
@@ -183,20 +187,23 @@ public class AddFoundFragment extends Fragment {
                 item.uploadItemWithImage( new Item.Callback() {
                     @Override
                     public void onSuccess() {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
-
-                            if (getActivity() instanceof MainActivity) {
-                                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
-                                if (bottomNav != null) {
-                                    bottomNav.setSelectedItemId(R.id.nav_home);
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
+                                if (getActivity() instanceof MainActivity) {
+                                    BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_nav);
+                                    if (bottomNav != null) {
+                                        bottomNav.setSelectedItemId(R.id.nav_home);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                     @Override
                     public void onError(Exception e) {
-                        requireActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        if(isAdded()&&getActivity()!=null){
+                            getActivity().runOnUiThread(() -> {Toast.makeText(getContext(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();});
+                        }
                         e.printStackTrace();
                     }
                 });

@@ -19,6 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.example.returns.DB.Notification;
+import com.example.returns.DB.User;
 import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.example.returns.DB.AppDatabase;
@@ -27,6 +29,7 @@ import com.example.returns.DB.Comments;
 import com.example.returns.add.AddFoundFragment;
 import com.example.returns.add.AddLostFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -96,31 +99,46 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                 newComment.ItemId = item.getRef();
                 newComment.message = commentText;
                 newComment.timestamp = currentTime;
+                newComment.authorName = myNickname;
 
-                Comments.
-                // 2. DB 저장 (비동기 처리)
-                new Thread(() -> {
-                    AppDatabase.getInstance(requireContext()).commentDao().insert(newComment);
+                newComment.uploadToFirebase(new Comments.Callback(){
+                    @Override
+                    public void onSuccess(){
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                etCommentInput.setText("");
+                            });
+                        }
+                        if(item.getAuthor()==User.getReferenceByName(myNickname))return;//나에게는 메시지를 보내지 않음
+                        Notification newNoti = new Notification();
+                        newNoti.Receiver = item.getAuthor();
+                        newNoti.Title = item.getTitle();
+                        newNoti.timestamp = Timestamp.now();
+                        newNoti.Author = myNickname;
 
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            // UI 업데이트
-                            addCommentUI(myNickname, commentText, currentTime);
-                            etCommentInput.setText("");
-
-                            // ✅ 알림 로직 수정: 조건문을 제거하고 MainActivity에 작성자 정보를 넘깁니다.
-                            if (getActivity() instanceof MainActivity) {
-                                // 4개의 인자 전달: 아이템ID, 제목, 댓글작성자(나), 게시글작성자
-                                ((MainActivity) getActivity()).handleCommentAdded(
-                                        item.getId(),
-                                        item.getTitle(),
-                                        myNickname,
-                                        item.getAuthorNickname()
-                                );
+                        newNoti.uploadToFirebase(new Notification.Callback(){
+                            @Override
+                            public void onSuccess(){}
+                            @Override
+                            public void onError(Exception e){
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        Toast.makeText(requireContext(), "댓글 전송중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
                             }
                         });
                     }
-                }).start();
+                    @Override
+                    public void onError(Exception e) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(requireContext(), "댓글 전송에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    }
+                });
+
             }
         });
 
@@ -196,7 +214,7 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     private void checkOwnership() {
         SharedPreferences pref = requireContext().getSharedPreferences("UserToken", Context.MODE_PRIVATE);
         String currentLoginUser = pref.getString("nickName", "");
-        if (item.getAuthorNickname() != null && item.getAuthorNickname().equals(currentLoginUser)) {
+        if (item.getAuthor() != null && item.getAuthor()==User.getReferenceByName(currentLoginUser)) {
             layoutOwnerButtons.setVisibility(View.VISIBLE);
         } else {
             layoutOwnerButtons.setVisibility(View.GONE);
@@ -204,19 +222,30 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
     }
 
     private void loadCommentsFromDB() {
-        new Thread(() -> {
-            List<Comments> comments = AppDatabase.getInstance(requireContext()).commentDao().getCommentsForItem(item.getId());
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    layoutCommentsList.removeAllViews();
-                    commentCount = 0;
-                    for (Comments c : comments) {
-                        addCommentUI(c.authorName, c.message, c.timestamp);
-                    }
-                    tvCommentHeader.setText("댓글 (" + commentCount + ")");
-                });
+        Comments.getCommentsForItem(item, new Comments.ListCommentCallback() {
+            @Override
+            public void onSuccess(List<Comments> list) {
+                if (isAdded() && getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        layoutCommentsList.removeAllViews();
+                        commentCount = 0;
+                        for (Comments c : list) {
+                            addCommentUI(c.authorName, c.message, c.timestamp);
+                        }
+                        tvCommentHeader.setText("댓글 (" + commentCount + ")");
+                    });
+                }
             }
-        }).start();
+
+            @Override
+            public void onError(Exception e) {
+                if (isAdded()&& getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "댓글 로딩에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
     }
 
     private void addCommentUI(String name, String message, String date) {

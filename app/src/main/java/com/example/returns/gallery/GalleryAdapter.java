@@ -1,7 +1,6 @@
 package com.example.returns.gallery;
 
-import static java.security.AccessController.getContext;
-
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,6 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private List<Item> displayItems = new ArrayList<>();
 
-
     public interface OnItemClickListener {
         void onItemClick(Item item);
     }
@@ -37,7 +35,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    public void filter(String query, String type, String category) {
+    public void filter(Context context,String query, String type, String category) {
         Item.queryItems(query,type,category,new Item.ListItemCallback(){
             @Override
             public void onSuccess(List<Item> list) {
@@ -46,7 +44,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             }
             @Override
             public void onError(Exception e) {
-                Toast.makeText(getContext(),"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,"서버 연결에 실패했습니다.",Toast.LENGTH_SHORT).show();
                 Log.e("GalleryAdapter", "서버와 연결 실패", e);
             }
         });

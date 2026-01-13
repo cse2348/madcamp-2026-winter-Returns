@@ -3,6 +3,7 @@ package com.example.returns.DB;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class User {
 
     // 1. 중복 체크 함수
     public static void checkNickname(String nickname, UserCallback callback) {
-        AppDatabase.getDb().collection("users").document(nickname).get()
+        AppDatabase.getDb().collection("Users").document(nickname).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (task.getResult().exists()) {
@@ -36,9 +37,13 @@ public class User {
     // 2. 유저 추가 함수
     public static void register(String nickname, OnCompleteListener<Void> listener) {
         Map<String, Object> user = new HashMap<>();
-        user.put("nickname", nickname);
-        AppDatabase.getDb().collection("users").document(nickname)
+        AppDatabase.getDb().collection("Users").document(nickname)
                 .set(user)
                 .addOnCompleteListener(listener);
+    }
+
+    public static DocumentReference getReferenceByName(String itemName) {
+        // 문서 ID가 곧 이름이므로, .document(itemName)으로 즉시 참조를 만듭니다.
+        return AppDatabase.getDb().collection("Items").document(itemName);
     }
 }

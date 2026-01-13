@@ -70,10 +70,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 3. 최종 시작하기 버튼 클릭
         findViewById(R.id.btnFinalStart).setOnClickListener(v -> {
-            String nickname = etNickname.getText().toString().trim();
-
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("userNickname", nickname);
             startActivity(intent);
             finish();
         });
