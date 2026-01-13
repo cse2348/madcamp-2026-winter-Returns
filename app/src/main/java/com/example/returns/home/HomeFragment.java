@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
-import com.example.returns.DB.ItemDao;
 import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.google.android.material.button.MaterialButton;

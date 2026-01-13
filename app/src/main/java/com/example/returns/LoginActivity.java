@@ -11,14 +11,22 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.returns.DB.AppDatabase;
+import com.example.returns.DB.User;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -48,7 +56,14 @@ public class LoginActivity extends AppCompatActivity {
         setStep("initial");
 
         // 1. 시작하기 버튼 클릭
-        findViewById(R.id.btnStart).setOnClickListener(v -> setStep("register"));
+        findViewById(R.id.btnStart).setOnClickListener(v -> {
+            String logged_in=getSharedPreferences("UserToken", MODE_PRIVATE).getString("nickName",null);
+            if(logged_in!=null){
+                tvWelcomeName.setText(logged_in + "님");
+                setStep("success");
+            }
+            else setStep("register");
+        });
 
         // 2. 닉네임 전송(중복 확인) 버튼 클릭 시 검사 시작
         findViewById(R.id.btnCheckNickname).setOnClickListener(v -> checkNickname());
@@ -56,18 +71,6 @@ public class LoginActivity extends AppCompatActivity {
         // 3. 최종 시작하기 버튼 클릭
         findViewById(R.id.btnFinalStart).setOnClickListener(v -> {
             String nickname = etNickname.getText().toString().trim();
-
-            // 여기서도 안전을 위해 8자 체크
-            if (nickname.length() > 8) {
-                setStep("register");
-                showError("닉네임은 8자 이하만 가능합니다.");
-                return;
-            }
-
-            SharedPreferences pref = getSharedPreferences("UserToken", MODE_PRIVATE);
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putString("nickName", nickname);
-            editor.apply();
 
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra("userNickname", nickname);
@@ -110,15 +113,35 @@ public class LoginActivity extends AppCompatActivity {
 
         // 실제 중복 체크 시뮬레이션
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (EXISTING_NICKNAMES.contains(nickname.toLowerCase())) {
-                setStep("register");
-                showError("이미 존재하는 닉네임입니다.");
-                shakeView(etNickname);
-            } else {
-                // 통과 시 성공 화면으로
-                tvWelcomeName.setText(nickname + "님");
-                setStep("success");
-            }
+            User.checkNickname(nickname, new User.UserCallback() {
+                @Override
+                public void onAvailable() {
+                    // 2. 중복이 없으니 실제 DB에 등록(register) 호출!
+                    User.register(nickname, task-> {
+                        if (task.isSuccessful()) {
+                            getSharedPreferences("UserToken", MODE_PRIVATE)
+                                    .edit().putString("nickName", nickname).apply();
+                            tvWelcomeName.setText(nickname + "님");
+                            setStep("success");
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onDuplicate() {
+                        setStep("register");
+                        showError("이미 존재하는 닉네임입니다.");
+                        shakeView(etNickname);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                        Toast.makeText(LoginActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
         }, 800);
     }
 

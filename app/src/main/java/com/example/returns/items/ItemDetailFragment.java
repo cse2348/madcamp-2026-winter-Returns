@@ -23,7 +23,7 @@ import com.example.returns.MainActivity;
 import com.example.returns.R;
 import com.example.returns.DB.AppDatabase;
 import com.example.returns.DB.Item;
-import com.example.returns.DB.Comment;
+import com.example.returns.DB.Comments;
 import com.example.returns.add.AddFoundFragment;
 import com.example.returns.add.AddLostFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -92,7 +92,7 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
                 String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA).format(new Date());
 
                 // 1. DB에 저장할 댓글 객체 생성
-                Comment newComment = new Comment();
+                Comments newComment = new Comments();
                 newComment.itemId = item.getId();
                 newComment.authorName = myNickname;
                 newComment.message = commentText;
@@ -203,12 +203,12 @@ public class ItemDetailFragment extends BottomSheetDialogFragment {
 
     private void loadCommentsFromDB() {
         new Thread(() -> {
-            List<Comment> comments = AppDatabase.getInstance(requireContext()).commentDao().getCommentsForItem(item.getId());
+            List<Comments> comments = AppDatabase.getInstance(requireContext()).commentDao().getCommentsForItem(item.getId());
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     layoutCommentsList.removeAllViews();
                     commentCount = 0;
-                    for (Comment c : comments) {
+                    for (Comments c : comments) {
                         addCommentUI(c.authorName, c.message, c.timestamp);
                     }
                     tvCommentHeader.setText("댓글 (" + commentCount + ")");

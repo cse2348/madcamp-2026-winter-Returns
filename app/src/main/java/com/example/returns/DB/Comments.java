@@ -1,16 +1,14 @@
 package com.example.returns.DB;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
-public class Notification {
+public class Comments {
 
     public int id;
 
-    public String receiverNickname; // 알림을 받을 사람 (게시글 주인)
-    public String title;           // 게시글 제목
-    public String commenterName;   // 댓글 쓴 사람
-    public String timestamp;       // 알림 시간
+    public int itemId;        // 게시글 ID
+    public String authorName;  // 작성자 닉네임
+    public String message;     // 댓글 내용
+    public String timestamp;   // 작성 시간
+
 
     public interface Callback {
         void onSuccess();

@@ -1,16 +1,19 @@
 package com.example.returns.DB;
 
+import android.net.Uri;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.firebase.storage.StorageReference;
+
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-@Entity(tableName = "items")
-public class Item implements Serializable {
+public class Item{
 
-    @PrimaryKey(autoGenerate = true)
     private int id; // 데이터 고유 번호
-
     private String type;           // "LOST" 또는 "FOUND"
     private String category;
     private String title;          // 제목
@@ -18,7 +21,7 @@ public class Item implements Serializable {
     private String dateOccurred;   // 날짜
     private String status;         // "보관중", "찾아감", "미발견"
     private String authorNickname; // 작성자 닉네임 (본인 확인용)
-    private String contactName;    // 연락처 이름
+    private String contactName;    // 회수 방법
     private String notes;          // 특징/추가 설명
     private String handledBy;      // 보관 장소
     private String imageUriString; // 이미지 경로 (String 형태)
@@ -62,4 +65,41 @@ public class Item implements Serializable {
 
     public String getImageUriString() { return imageUriString; }
     public void setImageUriString(String imageUriString) { this.imageUriString = imageUriString; }
+
+    public interface Callback {
+        void onSuccess();
+        void onError(Exception e);
+    }
+
+    public void uploadItemWithImage(Callback callback) {
+        String imageUri = getImageUriString();
+
+        if (imageUri != null && !imageUri.isEmpty() && !imageUri.startsWith("http")) {
+            Image.uploadImage(Uri.parse(imageUri), new Image.Callback() {
+                @Override
+                public void onSuccess(String url) {
+                    setImageUriString(url);
+                    uploadToFirebase(callback);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    callback.onError(e);
+                }
+            });
+        } else {
+            uploadToFirebase(callback);
+        }
+    }
+
+    private void uploadToFirebase(Callback callback) {
+        AppDatabase.getDb().collection("items")
+                .add(this)
+                .addOnSuccessListener(documentReference -> {
+                    callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    callback.onError(e);
+                });
+    }
 }

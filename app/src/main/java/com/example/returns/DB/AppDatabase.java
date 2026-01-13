@@ -1,27 +1,32 @@
 package com.example.returns.DB;
 
-import android.content.Context;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.storage.FirebaseStorage;
 
-@Database(entities = {Item.class, Comment.class, Notification.class}, version = 4)
-public abstract class AppDatabase extends RoomDatabase {
+public class AppDatabase {
+    private static FirebaseFirestore dbInstance;
+    private static FirebaseStorage storageInstance;
 
-    public abstract ItemDao itemDao();
-    public abstract CommentDao commentDao();
-    public abstract NotificationDao notificationDao();
+    // Firestore 인스턴스 가져오기 (Room의 getInstance와 유사)
+    public static synchronized FirebaseFirestore getDb() {
+        if (dbInstance == null) {
+            dbInstance = FirebaseFirestore.getInstance();
 
-    private static AppDatabase instance;
-
-    public static synchronized AppDatabase getInstance(Context context) {
-        if (instance == null) {
-            instance = Room.databaseBuilder(context.getApplicationContext(),
-                            AppDatabase.class, "returns_db")
-                    .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
+            // 오프라인 데이터 지원 설정 (Local-First 전략 유지)
+            FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                    .setPersistenceEnabled(true)
                     .build();
+            dbInstance.setFirestoreSettings(settings);
         }
-        return instance;
+        return dbInstance;
+    }
+
+    // Storage 인스턴스 가져오기 (이미지 업로드용)
+    public static synchronized FirebaseStorage getStorage() {
+        if (storageInstance == null) {
+            storageInstance = FirebaseStorage.getInstance();
+        }
+        return storageInstance;
     }
 }
