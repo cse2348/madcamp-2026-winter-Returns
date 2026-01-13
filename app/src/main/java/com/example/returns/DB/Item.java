@@ -1,5 +1,7 @@
 package com.example.returns.DB;
 
+import android.util.Log;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -49,17 +51,32 @@ public class Item implements Serializable {
     public void setStatus(String status) { this.status = status; }
 
     public String getAuthorNickname() { return authorNickname; }
-    public void setAuthorNickname(String authorNickname) { this.authorNickname = authorNickname; }
+    public void setAuthorNickname(String authorNickname) {
+        this.authorNickname = authorNickname;
+        if(authorNickname!=null)Log.d("authorNickname", authorNickname);
+    }
 
     public String getContactName() { return contactName; }
-    public void setContactName(String contactName) { this.contactName = contactName; }
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+        if(contactName!=null)Log.d("contactName", contactName);
+    }
 
     public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
+    public void setNotes(String notes) {
+        this.notes = notes;
+        if(notes!=null)Log.d("notes", notes);
+    }
 
     public String getHandledBy() { return handledBy; }
-    public void setHandledBy(String handledBy) { this.handledBy = handledBy; }
+    public void setHandledBy(String handledBy) {
+        this.handledBy = handledBy;
+        if(handledBy!=null)Log.d("handledBy", handledBy);
+    }
 
     public String getImageUriString() { return imageUriString; }
-    public void setImageUriString(String imageUriString) { this.imageUriString = imageUriString; }
+    public void setImageUriString(String imageUriString) {
+        this.imageUriString = imageUriString;
+        if(imageUriString!=null)Log.d("ImageUri", imageUriString);
+    }
 }

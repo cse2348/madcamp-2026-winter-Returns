@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         rootLayout = findViewById(R.id.main);
+        
+        //mockdata 추가부분, 설치 후 첫실행시에만 추가
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
+        if (isFirstRun) {
+            // 2. 처음 실행일 때만 백그라운드 스레드에서 데이터 삽입
+            new Thread(() -> {
+                AppDatabase db = AppDatabase.getInstance(this);
+                AppDatabase.getInstance(this).insertMockData(this);//mockdata 추가
+                prefs.edit().putBoolean("isFirstRun", false).apply();
+            }).start();
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
